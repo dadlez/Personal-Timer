@@ -1,6 +1,6 @@
 module.exports = {
-	entry: "./jsx/app.jsx",
-	output: { filename: "./out.js" },
+	entry: "./src/components/app.jsx",
+	output: { filename: "./src/out.js" },
 	watch: true,
 	module: {
 		loaders: [
