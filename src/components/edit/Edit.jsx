@@ -21,6 +21,10 @@ class Edit extends React.Component {
 		});
 	}
 
+	handleClick = () => {
+
+	}
+
 
 	render() {
 		return (
@@ -46,6 +50,7 @@ class Edit extends React.Component {
 					</label>
 					<input type="submit" defaultValue="Add"/>
 				</form>
+				<button onClick={() => this.props.changeView("run")}>Run this set</button>
 			</div>
 		)
 	}

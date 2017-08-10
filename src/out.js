@@ -9774,8 +9774,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var uuidv1 = __webpack_require__(192);
 
-var Tree = function (_React$Component) {
-	_inherits(Tree, _React$Component);
+var Tree = function (_Component) {
+	_inherits(Tree, _Component);
 
 	function Tree() {
 		_classCallCheck(this, Tree);
@@ -9799,7 +9799,7 @@ var Tree = function (_React$Component) {
 	}]);
 
 	return Tree;
-}(_react2.default.Component);
+}(_react.Component);
 
 exports.default = Tree;
 
@@ -9840,10 +9840,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+// import { Router, Rouet, hashHistory } from 'react-router';
+
 __webpack_require__(198);
 
-var App = function (_React$Component) {
-	_inherits(App, _React$Component);
+var App = function (_Component) {
+	_inherits(App, _Component);
 
 	function App(props) {
 		_classCallCheck(this, App);
@@ -9873,7 +9875,12 @@ var App = function (_React$Component) {
 			});
 		};
 
+		_this.changeView = function (view) {
+			_this.setState({ view: view });
+		};
+
 		_this.state = {
+			view: "edit",
 			times: [],
 			run: false
 		};
@@ -9919,6 +9926,26 @@ var App = function (_React$Component) {
 			}, 1000);
 		}
 	}, {
+		key: 'renderView',
+		value: function renderView(view) {
+			if (this.state.view === "edit") {
+				return _react2.default.createElement(_Edit2.default, {
+					times: this.state.times,
+					run: this.state.run,
+					editTimes: this.editTimes,
+					changeView: this.changeView
+				});
+			} else if (this.state.view === "run") {
+				return _react2.default.createElement(_Run2.default, {
+					times: this.state.times,
+					run: this.state.run,
+					handleStart: this.handleStart,
+					handleStop: this.handleStop,
+					changeView: this.changeView
+				});
+			}
+		}
+	}, {
 		key: 'render',
 		value: function render() {
 			if (this.state.run === false) {
@@ -9931,23 +9958,33 @@ var App = function (_React$Component) {
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(_Edit2.default, {
-					times: this.state.times,
-					run: this.state.run,
-					editTimes: this.editTimes
-				}),
-				_react2.default.createElement(_Run2.default, {
-					times: this.state.times,
-					run: this.state.run,
-					handleStart: this.handleStart,
-					handleStop: this.handleStop
-				})
+				this.renderView(this.state.view)
 			);
+			// if (this.state.view === "edit") {
+			// 	return(
+			// 		<Edit
+			// 			times={this.state.times}
+			// 			run={this.state.run}
+			// 			editTimes={this.editTimes}
+			// 			changeView={this.changeView}
+			// 		/>
+			// 	)
+			// } else if (this.state.view === "run") {
+			// 	return (
+			// 		<Run
+			// 			times={this.state.times}
+			// 			run={this.state.run}
+			// 			handleStart={this.handleStart}
+			// 			handleStop={this.handleStop}
+			// 			changeView={this.changeView}
+			// 		/>
+			// 	)
+			// }
 		}
 	}]);
 
 	return App;
-}(_react2.default.Component);
+}(_react.Component);
 
 document.addEventListener('DOMContentLoaded', function () {
 	_reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('app'));
@@ -22818,7 +22855,11 @@ var Edit = function (_React$Component) {
 	function Edit(props) {
 		_classCallCheck(this, Edit);
 
-		return _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
+		var _this = _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
+
+		_this.handleClick = function () {};
+
+		return _this;
 	}
 
 	_createClass(Edit, [{
@@ -22869,6 +22910,13 @@ var Edit = function (_React$Component) {
 						})
 					),
 					_react2.default.createElement('input', { type: 'submit', defaultValue: 'Add' })
+				),
+				_react2.default.createElement(
+					'button',
+					{ onClick: function onClick() {
+							return _this2.props.changeView("run");
+						} },
+					'Run this set'
 				)
 			);
 		}
@@ -23283,11 +23331,20 @@ var Run = function (_Component) {
 	_createClass(Run, [{
 		key: 'render',
 		value: function render() {
+			var _this2 = this;
+
 			return _react2.default.createElement(
 				'div',
 				null,
 				_react2.default.createElement(_Tree2.default, { times: this.props.times, run: this.props.run, edit: false }),
-				_react2.default.createElement(_RunFooter2.default, { handleStart: this.props.handleStart, handleStop: this.props.handleStop })
+				_react2.default.createElement(_RunFooter2.default, { handleStart: this.props.handleStart, handleStop: this.props.handleStop }),
+				_react2.default.createElement(
+					'button',
+					{ onClick: function onClick() {
+							return _this2.props.changeView("edit");
+						} },
+					'Edit this set'
+				)
 			);
 		}
 	}]);

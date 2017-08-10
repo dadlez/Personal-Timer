@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Timer from './Timer.jsx';
 
 const uuidv1 = require('uuid/v1');
 
-class Tree extends React.Component {
+class Tree extends Component {
 	render() {
 		return(
 			<ul className="tree">

@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Start from './start/Start.jsx';
 import Edit from './edit/Edit.jsx';
 import Run from './run/Run.jsx';
+// import { Router, Rouet, hashHistory } from 'react-router';
 
 require('./../scss/main.scss');
 
-class App extends React.Component {
+class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			view: "edit",
 			times: [],
 			run: false
 		};
@@ -75,6 +77,33 @@ class App extends React.Component {
 		});
 	}
 
+	changeView = (view) => {
+		this.setState({view: view});
+	}
+
+	renderView(view) {
+		if (this.state.view === "edit") {
+			return(
+				<Edit
+					times={this.state.times}
+					run={this.state.run}
+					editTimes={this.editTimes}
+					changeView={this.changeView}
+				/>
+			)
+		} else if (this.state.view === "run") {
+			return (
+				<Run
+					times={this.state.times}
+					run={this.state.run}
+					handleStart={this.handleStart}
+					handleStop={this.handleStop}
+					changeView={this.changeView}
+				/>
+			)
+		}
+	}
+
 	render() {
 		if (this.state.run === false) {
 			clearInterval(this.timerInterval);
@@ -83,27 +112,33 @@ class App extends React.Component {
 			this.startInterval();
 		}
 
-		return (
-			<div>
-				<Edit
-					times={this.state.times}
-					run={this.state.run}
-					editTimes={this.editTimes}
-				/>
-				<Run
-					times={this.state.times}
-					run={this.state.run}
-					handleStart={this.handleStart}
-					handleStop={this.handleStop}
-				/>
-			</div>
-		)
+		return( <div>{this.renderView(this.state.view)}</div>)
+		// if (this.state.view === "edit") {
+		// 	return(
+		// 		<Edit
+		// 			times={this.state.times}
+		// 			run={this.state.run}
+		// 			editTimes={this.editTimes}
+		// 			changeView={this.changeView}
+		// 		/>
+		// 	)
+		// } else if (this.state.view === "run") {
+		// 	return (
+		// 		<Run
+		// 			times={this.state.times}
+		// 			run={this.state.run}
+		// 			handleStart={this.handleStart}
+		// 			handleStop={this.handleStop}
+		// 			changeView={this.changeView}
+		// 		/>
+		// 	)
+		// }
 	}
 }
 
 document.addEventListener('DOMContentLoaded', function(){
 	ReactDOM.render(
-		<App/>,
+		<App />,
 		document.getElementById('app')
 	);
 });
