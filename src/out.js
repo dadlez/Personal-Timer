@@ -9874,9 +9874,23 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// import { Router, Rouet, hashHistory } from 'react-router';
-
 __webpack_require__(198);
+
+var times = [{
+	type: "loop",
+	reps: 2,
+	toRepeat: [{
+		type: "timer",
+		minutes: 0,
+		seconds: 5,
+		active: true
+	}, {
+		type: "timer",
+		minutes: 1,
+		seconds: 3,
+		active: false
+	}]
+}];
 
 var App = function (_Component) {
 	_inherits(App, _Component);
@@ -9913,7 +9927,7 @@ var App = function (_Component) {
 
 		_this.state = {
 			view: "edit",
-			times: [],
+			times: times,
 			run: false
 		};
 		_this.timerInterval = 0;
@@ -9927,24 +9941,24 @@ var App = function (_Component) {
 
 			this.state.times.forEach(function (e, i) {
 				if (e.active === true) {
-					var times = _this2.state.times.slice();
+					var _times = _this2.state.times.slice();
 
 					if (e.seconds == 0 && e.minutes == 0) {
 
-						times[i].active = false;
+						_times[i].active = false;
 
 						if (i + 1 < _this2.state.times.length) {
-							times[i + 1].active = true;
+							_times[i + 1].active = true;
 						} else {
 							clearInterval(_this2.timerInterval);
 						}
 					} else if (e.seconds < 1) {
-						times[i].minutes -= 1;
-						times[i].seconds = 59;
+						_times[i].minutes -= 1;
+						_times[i].seconds = 59;
 					} else {
-						times[i].seconds -= 1;
+						_times[i].seconds -= 1;
 					}
-					_this2.setState(times);
+					_this2.setState(_times);
 				}
 			});
 		}

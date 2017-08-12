@@ -3,16 +3,36 @@ import ReactDOM from 'react-dom';
 import Start from './start/Start.jsx';
 import Edit from './edit/Edit.jsx';
 import Run from './run/Run.jsx';
-// import { Router, Rouet, hashHistory } from 'react-router';
 
 require('./../scss/main.scss');
+
+const times = [
+	{
+		type: "loop",
+		reps: 2,
+		toRepeat: [
+			{
+				type: "timer",
+				minutes: 0,
+				seconds: 5,
+				active: true
+			},
+			{
+				type: "timer",
+				minutes: 1,
+				seconds: 3,
+				active: false
+			}
+		]
+	}
+]
 
 class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			view: "edit",
-			times: [],
+			times: times,
 			run: false
 		};
 		this.timerInterval = 0;
