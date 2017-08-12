@@ -41,9 +41,9 @@ class Timer extends React.Component {
 
 	render() {
 		return(
-			<li className="time">
+			<div className="time">
 				{this.state.minutes} : {this.state.seconds}
-			</li>
+			</div>
 		)
 	}
 }

@@ -9764,6 +9764,10 @@ var _Timer = __webpack_require__(191);
 
 var _Timer2 = _interopRequireDefault(_Timer);
 
+var _Loop = __webpack_require__(203);
+
+var _Loop2 = _interopRequireDefault(_Loop);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9784,6 +9788,30 @@ var Tree = function (_Component) {
 	}
 
 	_createClass(Tree, [{
+		key: 'renderLoop',
+		value: function renderLoop(obj, key) {
+			var type = obj.type;
+
+			if (type === "loop") {
+				var reps = obj.reps;
+
+				return _react2.default.createElement(
+					'div',
+					null,
+					_react2.default.createElement(_Loop2.default, {
+						reps: reps,
+						renderLoop: this.renderLoop
+					})
+				);
+			} else if (type === "timer") {
+				return _react2.default.createElement(_Timer2.default, {
+					minutes: obj.minutes,
+					seconds: obj.seconds,
+					edit: this.props.edit
+				});
+			}
+		}
+	}, {
 		key: 'render',
 		value: function render() {
 			var _this2 = this;
@@ -9792,7 +9820,13 @@ var Tree = function (_Component) {
 				'ul',
 				{ className: 'tree' },
 				this.props.times.map(function (e) {
-					return _react2.default.createElement(_Timer2.default, { key: uuidv1(), minutes: e.minutes, seconds: e.seconds, edit: _this2.props.edit });
+					var key = uuidv1();
+
+					return _react2.default.createElement(
+						'li',
+						{ key: uuidv1() },
+						_this2.renderLoop(e)
+					);
 				})
 			);
 		}
@@ -9856,9 +9890,7 @@ var App = function (_Component) {
 			var times = _this.state.times.slice();
 			times.push(newTimes);
 
-			_this.setState({
-				times: times
-			});
+			_this.setState({ times: times });
 		};
 
 		_this.handleStart = function (event) {
@@ -9960,26 +9992,6 @@ var App = function (_Component) {
 				null,
 				this.renderView(this.state.view)
 			);
-			// if (this.state.view === "edit") {
-			// 	return(
-			// 		<Edit
-			// 			times={this.state.times}
-			// 			run={this.state.run}
-			// 			editTimes={this.editTimes}
-			// 			changeView={this.changeView}
-			// 		/>
-			// 	)
-			// } else if (this.state.view === "run") {
-			// 	return (
-			// 		<Run
-			// 			times={this.state.times}
-			// 			run={this.state.run}
-			// 			handleStart={this.handleStart}
-			// 			handleStop={this.handleStop}
-			// 			changeView={this.changeView}
-			// 		/>
-			// 	)
-			// }
 		}
 	}]);
 
@@ -22837,6 +22849,10 @@ var _EditFooter = __webpack_require__(190);
 
 var _EditFooter2 = _interopRequireDefault(_EditFooter);
 
+var _EditNewElement = __webpack_require__(204);
+
+var _EditNewElement2 = _interopRequireDefault(_EditNewElement);
+
 var _Tree = __webpack_require__(82);
 
 var _Tree2 = _interopRequireDefault(_Tree);
@@ -22855,28 +22871,10 @@ var Edit = function (_React$Component) {
 	function Edit(props) {
 		_classCallCheck(this, Edit);
 
-		var _this = _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
-
-		_this.handleClick = function () {};
-
-		return _this;
+		return _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
 	}
 
 	_createClass(Edit, [{
-		key: 'handleSubmit',
-		value: function handleSubmit(event) {
-			event.preventDefault();
-
-			var min = event.target.elements.minutes.value;
-			var sec = event.target.elements.seconds.value;
-
-			this.props.editTimes({
-				minutes: parseInt(min),
-				seconds: parseInt(sec),
-				active: this.props.times.length == 0 ? true : false
-			});
-		}
-	}, {
 		key: 'render',
 		value: function render() {
 			var _this2 = this;
@@ -22889,28 +22887,10 @@ var Edit = function (_React$Component) {
 					times: this.props.times,
 					edit: true
 				}),
-				_react2.default.createElement(
-					'form',
-					{ onSubmit: function onSubmit(event) {
-							return _this2.handleSubmit(event);
-						} },
-					_react2.default.createElement(
-						'label',
-						null,
-						'Add new timer',
-						_react2.default.createElement('input', {
-							type: 'number',
-							name: 'minutes',
-							defaultValue: 0
-						}),
-						_react2.default.createElement('input', {
-							type: 'number',
-							name: 'seconds',
-							defaultValue: 10
-						})
-					),
-					_react2.default.createElement('input', { type: 'submit', defaultValue: 'Add' })
-				),
+				_react2.default.createElement(_EditNewElement2.default, {
+					times: this.props.times,
+					editTimes: this.props.editTimes
+				}),
 				_react2.default.createElement(
 					'button',
 					{ onClick: function onClick() {
@@ -23070,7 +23050,7 @@ var Timer = function (_React$Component) {
 		key: "render",
 		value: function render() {
 			return _react2.default.createElement(
-				"li",
+				"div",
 				{ className: "time" },
 				this.state.minutes,
 				" : ",
@@ -24003,6 +23983,174 @@ module.exports = function (css) {
 	return fixedCss;
 };
 
+
+/***/ }),
+/* 203 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(10);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Loop = function (_Component) {
+	_inherits(Loop, _Component);
+
+	function Loop() {
+		_classCallCheck(this, Loop);
+
+		return _possibleConstructorReturn(this, (Loop.__proto__ || Object.getPrototypeOf(Loop)).apply(this, arguments));
+	}
+
+	_createClass(Loop, [{
+		key: 'render',
+		value: function render() {
+			return _react2.default.createElement(
+				'ul',
+				null,
+				'Loop - repeat ',
+				this.props.reps,
+				' times.'
+			);
+		}
+	}]);
+
+	return Loop;
+}(_react.Component);
+
+exports.default = Loop;
+
+/***/ }),
+/* 204 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(10);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var NewElement = function (_Component) {
+	_inherits(NewElement, _Component);
+
+	function NewElement() {
+		_classCallCheck(this, NewElement);
+
+		return _possibleConstructorReturn(this, (NewElement.__proto__ || Object.getPrototypeOf(NewElement)).apply(this, arguments));
+	}
+
+	_createClass(NewElement, [{
+		key: "handleSubmit",
+		value: function handleSubmit(event, type) {
+			event.preventDefault();
+			var result = {};
+
+			if (type === "timer") {
+				var min = event.target.elements.minutes.value;
+				var sec = event.target.elements.seconds.value;
+				result = {
+					type: "timer",
+					minutes: parseInt(min),
+					seconds: parseInt(sec),
+					active: this.props.times.length == 0 ? true : false
+				};
+			} else if (type === "loop") {
+				var reps = event.target.elements.reps.value;
+
+				result = {
+					type: "loop",
+					reps: parseInt(reps)
+				};
+			}
+
+			this.props.editTimes(result);
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var _this2 = this;
+
+			return _react2.default.createElement(
+				"div",
+				null,
+				_react2.default.createElement(
+					"form",
+					{ onSubmit: function onSubmit(event) {
+							return _this2.handleSubmit(event, "timer");
+						} },
+					_react2.default.createElement(
+						"label",
+						null,
+						"New timer",
+						_react2.default.createElement("input", {
+							type: "number",
+							name: "minutes",
+							defaultValue: 0
+						}),
+						_react2.default.createElement("input", {
+							type: "number",
+							name: "seconds",
+							defaultValue: 10
+						}),
+						_react2.default.createElement("input", { type: "submit", defaultValue: "Add" })
+					)
+				),
+				_react2.default.createElement(
+					"form",
+					{ onSubmit: function onSubmit(event) {
+							return _this2.handleSubmit(event, "loop");
+						} },
+					_react2.default.createElement(
+						"label",
+						null,
+						"New loop",
+						_react2.default.createElement("input", {
+							type: "number",
+							name: "reps",
+							defaultValue: 2
+						}),
+						_react2.default.createElement("input", { type: "submit", defaultValue: "Add" })
+					)
+				)
+			);
+		}
+	}]);
+
+	return NewElement;
+}(_react.Component);
+
+exports.default = NewElement;
 
 /***/ })
 /******/ ]);

@@ -22,13 +22,10 @@ class App extends Component {
 		const times = this.state.times.slice();
 		times.push(newTimes)
 
-		this.setState({
-			times: times
-		})
+		this.setState({ times })
 	}
 
 	changeTime() {
-
 		this.state.times.forEach((e, i) => {
 			if (e.active === true) {
 				const times = this.state.times.slice();
@@ -113,26 +110,6 @@ class App extends Component {
 		}
 
 		return( <div>{this.renderView(this.state.view)}</div>)
-		// if (this.state.view === "edit") {
-		// 	return(
-		// 		<Edit
-		// 			times={this.state.times}
-		// 			run={this.state.run}
-		// 			editTimes={this.editTimes}
-		// 			changeView={this.changeView}
-		// 		/>
-		// 	)
-		// } else if (this.state.view === "run") {
-		// 	return (
-		// 		<Run
-		// 			times={this.state.times}
-		// 			run={this.state.run}
-		// 			handleStart={this.handleStart}
-		// 			handleStop={this.handleStop}
-		// 			changeView={this.changeView}
-		// 		/>
-		// 	)
-		// }
 	}
 }
 
