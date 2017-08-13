@@ -16,6 +16,7 @@ class Edit extends React.Component {
 				<Tree
 					times={this.props.times}
 					edit={true}
+					editTimes={this.props.editTimes}
 				/>
 				<NewElement
 					times={this.props.times}

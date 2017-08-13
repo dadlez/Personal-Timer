@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import AddLoop from './AddLoop.jsx';
+import AddTimer from './AddTimer.jsx';
+
+// const uuidv1 = require('uuid/v1');
 
 class NewElement extends Component {
 	handleSubmit(event, type) {
@@ -18,8 +22,10 @@ class NewElement extends Component {
 			const reps = event.target.elements.reps.value;
 
 			result = {
+				// loopID: uuidv1(),
 				type: "loop",
-				reps: parseInt(reps)
+				reps: parseInt(reps),
+
 			}
 		}
 
@@ -45,17 +51,11 @@ class NewElement extends Component {
 						<input type="submit" defaultValue="Add"/>
 					</label>
 				</form>
-				<form onSubmit={event => this.handleSubmit(event, "loop")}>
-					<label>
-						New loop
-						<input
-							type="number"
-							name="reps"
-							defaultValue={2}
-						/>
-						<input type="submit" defaultValue="Add" />
-					</label>
-				</form>
+				<AddLoop
+					loopID="newLoop"
+					times={this.props.times}
+					editTimes={this.props.editTimes}
+				/>
 			</div>
 		)
 	}

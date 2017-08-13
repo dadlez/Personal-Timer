@@ -6,25 +6,32 @@ const uuidv1 = require('uuid/v1');
 
 class Tree extends Component {
 
-	renderLoop(obj, key) {
-		const type = obj.type;
+	renderElement(e) {
+		console.log(e.content);
+		const type = e.type;
 
 		if (type === "loop") {
-			const reps = obj.reps;
+			const reps = e.reps;
+
+			if (e.content.length != 0) {
+				e.content.forEach(innerE => this.renderElement());
+			}
 
 			return(
 				<div>
 					<Loop
+						loopID={uuidv1()}
 						reps={reps}
-						renderLoop={this.renderLoop} 
+						times={this.props.times}
+						editTimes={this.props.editTimes}
 					/>
 				</div>
 			)
 		} else if (type === "timer") {
 			return (
 				<Timer
-					minutes={obj.minutes}
-					seconds={obj.seconds}
+					minutes={e.minutes}
+					seconds={e.seconds}
 					edit={this.props.edit}
 				/>
 			)
@@ -35,13 +42,9 @@ class Tree extends Component {
 		return(
 			<ul className="tree">
 				{this.props.times.map(e => {
-					const key = uuidv1();
-
 					return (
 						<li key={uuidv1()}>
-							{
-								this.renderLoop(e)
-							}
+							{this.renderElement(e)}
 						</li>
 					)
 				})}

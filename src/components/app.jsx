@@ -6,22 +6,19 @@ import Run from './run/Run.jsx';
 
 require('./../scss/main.scss');
 
+const uuidv1 = require('uuid/v1');
+
 const times = [
 	{
 		type: "loop",
-		reps: 2,
-		toRepeat: [
+		loopID: uuidv1(),
+		reps: 1,
+		content: [
 			{
-				type: "timer",
-				minutes: 0,
-				seconds: 5,
-				active: true
-			},
-			{
-				type: "timer",
-				minutes: 1,
-				seconds: 3,
-				active: false
+				type: "loop",
+				loopID: uuidv1(),
+				reps: 1,
+				content: []
 			}
 		]
 	}
