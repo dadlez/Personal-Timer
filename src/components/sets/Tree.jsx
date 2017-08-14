@@ -2,25 +2,24 @@ import React, { Component } from 'react';
 import Timer from './Timer.jsx';
 import Loop from './../sets/Loop.jsx';
 
-const uuidv1 = require('uuid/v1');
+const uuidv4 = require('uuid/v4');
 
 class Tree extends Component {
 
 	renderElement(e) {
-		console.log(e.content);
 		const type = e.type;
 
 		if (type === "loop") {
 			const reps = e.reps;
 
-			if (e.content.length != 0) {
-				e.content.forEach(innerE => this.renderElement());
+			if (e.content.length > 0) {
+				e.content.forEach(innerE => this.renderElement(innerE));
 			}
 
 			return(
 				<div>
 					<Loop
-						loopID={uuidv1()}
+						loopID={uuidv4()}
 						reps={reps}
 						times={this.props.times}
 						editTimes={this.props.editTimes}
@@ -43,7 +42,7 @@ class Tree extends Component {
 			<ul className="tree">
 				{this.props.times.map(e => {
 					return (
-						<li key={uuidv1()}>
+						<li key={uuidv4()}>
 							{this.renderElement(e)}
 						</li>
 					)

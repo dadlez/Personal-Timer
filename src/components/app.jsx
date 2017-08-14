@@ -6,17 +6,17 @@ import Run from './run/Run.jsx';
 
 require('./../scss/main.scss');
 
-const uuidv1 = require('uuid/v1');
+const uuidv4 = require('uuid/v4');
 
 const times = [
 	{
 		type: "loop",
-		loopID: uuidv1(),
+		loopID: uuidv4(),
 		reps: 1,
 		content: [
 			{
 				type: "loop",
-				loopID: uuidv1(),
+				loopID: uuidv4(),
 				reps: 1,
 				content: []
 			}
@@ -36,10 +36,10 @@ class App extends Component {
 	}
 
 	editTimes = (newTimes) => {
-		const times = this.state.times.slice();
-		times.push(newTimes)
+		// const times = this.state.times.slice();
+		// times.push(newTimes)
 
-		this.setState({ times })
+		this.setState({ times: newTimes })
 	}
 
 	changeTime() {

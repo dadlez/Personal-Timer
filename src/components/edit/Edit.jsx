@@ -1,14 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import EditHeader from './EditHeader.jsx';
 import EditFooter from './EditFooter.jsx';
 import NewElement from './EditNewElement.jsx';
 import Tree from './../sets/Tree.jsx';
 
-class Edit extends React.Component {
-	constructor(props){
-		super(props);
-	}
-
+class Edit extends Component {
 	render() {
 		return (
 			<div>
