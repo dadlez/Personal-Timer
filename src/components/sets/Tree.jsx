@@ -2,48 +2,46 @@ import React, { Component } from 'react';
 import Timer from './Timer.jsx';
 import Loop from './../sets/Loop.jsx';
 
-const uuidv1 = require('uuid/v1');
+const uuidv4 = require('uuid/v4');
 
 class Tree extends Component {
 
-	renderLoop(obj, key) {
-		const type = obj.type;
+	renderElement(times) {
+		let result = times.map(e => {
+			const type = e.type;
 
-		if (type === "loop") {
-			const reps = obj.reps;
-
-			return(
-				<div>
-					<Loop
-						reps={reps}
-						renderLoop={this.renderLoop} 
-					/>
-				</div>
-			)
-		} else if (type === "timer") {
-			return (
-				<Timer
-					minutes={obj.minutes}
-					seconds={obj.seconds}
-					edit={this.props.edit}
-				/>
-			)
-		}
+			if (type.includes("loop")) {
+				return(
+					<li key={uuidv4()}>
+						<Loop
+							loopID={e.loopID}
+							reps={e.reps}
+							times={this.props.times}
+							editTimes={this.props.editTimes}
+							content={e.content.length != 0 ? this.renderElement(e.content) : null}
+						/>
+					</li>
+				)
+			} else {
+				return (
+					<li key={uuidv4()}>
+						<Timer
+							minutes={e.minutes}
+							seconds={e.seconds}
+							edit={this.props.edit}
+						/>
+					</li>
+				)
+			}
+		})
+		return result;
 	}
 
 	render() {
 		return(
 			<ul className="tree">
-				{this.props.times.map(e => {
-					const key = uuidv1();
-
-					return (
-						<li key={uuidv1()}>
-							{
-								this.renderLoop(e)
-							}
-						</li>
-					)
+				{this.renderElement(this.props.times).map(e => {
+					return e;
 				})}
 			</ul>
 		)

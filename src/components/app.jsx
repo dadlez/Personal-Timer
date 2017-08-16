@@ -3,9 +3,54 @@ import ReactDOM from 'react-dom';
 import Start from './start/Start.jsx';
 import Edit from './edit/Edit.jsx';
 import Run from './run/Run.jsx';
-// import { Router, Rouet, hashHistory } from 'react-router';
+
+import Test from './Test.jsx'
 
 require('./../scss/main.scss');
+
+const uuidv4 = require('uuid/v4');
+
+// testing times var:
+const times = [
+	{
+		type: "loop",
+		loopID: uuidv4(),
+		reps: 1,
+		content: [
+			{
+				type: "loop",
+				loopID: uuidv4(),
+				reps: 1,
+				content: [
+					{
+						type: "timer",
+						minutes: 0,
+						seconds: 5,
+						active: false
+					}
+				]
+			},
+			{
+				type: "timer",
+				minutes: 0,
+				seconds: 5,
+				active: false
+			},
+			{
+				type: "timer",
+				minutes: 0,
+				seconds: 5,
+				active: false
+			}
+		]
+	},
+	{
+		type: "loop",
+		loopID: uuidv4(),
+		reps: 1,
+		content: []
+	}
+]
 
 class App extends Component {
 	constructor(props) {
@@ -19,10 +64,7 @@ class App extends Component {
 	}
 
 	editTimes = (newTimes) => {
-		const times = this.state.times.slice();
-		times.push(newTimes)
-
-		this.setState({ times })
+		this.setState({ times: newTimes })
 	}
 
 	changeTime() {
@@ -102,6 +144,7 @@ class App extends Component {
 	}
 
 	render() {
+		// console.log(this.state.times);
 		if (this.state.run === false) {
 			clearInterval(this.timerInterval);
 			this.timerInterval = 0;
