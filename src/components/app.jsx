@@ -4,10 +4,13 @@ import Start from './start/Start.jsx';
 import Edit from './edit/Edit.jsx';
 import Run from './run/Run.jsx';
 
+import Test from './Test.jsx'
+
 require('./../scss/main.scss');
 
 const uuidv4 = require('uuid/v4');
 
+// testing times var:
 const times = [
 	{
 		type: "loop",
@@ -18,9 +21,34 @@ const times = [
 				type: "loop",
 				loopID: uuidv4(),
 				reps: 1,
-				content: []
+				content: [
+					{
+						type: "timer",
+						minutes: 0,
+						seconds: 5,
+						active: false
+					}
+				]
+			},
+			{
+				type: "timer",
+				minutes: 0,
+				seconds: 5,
+				active: false
+			},
+			{
+				type: "timer",
+				minutes: 0,
+				seconds: 5,
+				active: false
 			}
 		]
+	},
+	{
+		type: "loop",
+		loopID: uuidv4(),
+		reps: 1,
+		content: []
 	}
 ]
 
@@ -29,16 +57,13 @@ class App extends Component {
 		super(props);
 		this.state = {
 			view: "edit",
-			times: times,
+			times: [],
 			run: false
 		};
 		this.timerInterval = 0;
 	}
 
 	editTimes = (newTimes) => {
-		// const times = this.state.times.slice();
-		// times.push(newTimes)
-
 		this.setState({ times: newTimes })
 	}
 
@@ -119,6 +144,7 @@ class App extends Component {
 	}
 
 	render() {
+		// console.log(this.state.times);
 		if (this.state.run === false) {
 			clearInterval(this.timerInterval);
 			this.timerInterval = 0;

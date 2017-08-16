@@ -4,13 +4,9 @@ const uuidv4 = require('uuid/v4');
 
 class AddLoop extends Component {
 
-// sprawdzić czy zwracane do times są prawidłowe obiekty we wszystkich componentach
-
 	findLoop(e, loopID, reps) {
-
 		if (e.type === "loop") {
 			if (e.loopID === loopID) {
-				console.log("pushed result");
 
 				const result = {
 					type: "loop",
@@ -22,8 +18,9 @@ class AddLoop extends Component {
 				return e;
 
 			} else if (e.content.length > 0){
-				console.log("going through inner loop");
-				e.content.forEach(innerE => this.findLoop(innerE));
+				return e.content.map(innerE => {
+					return this.findLoop(innerE, loopID, reps);
+				});
 			} else {
 				return e;
 			}
@@ -33,26 +30,19 @@ class AddLoop extends Component {
 	handleSubmit(event, loopID) {
 		event.preventDefault();
 		let times = this.props.times;
-		const reps = event.target.elements.reps;
+		const reps = event.target.elements.reps.value;
 
-		if (loopID === "newLoop") {
-			loopID = uuidv4();
-
-			const result = {
+		if (loopID === "mainLoop") {
+			times.push({
 				type: "loop",
-				loopID,
+				loopID: uuidv4(),
 				reps,
 				content: []
-			}
-
-			console.log(times);
-			times.push(result);
-			console.log(times);
+			});
 		} else {
-			console.log("wewnętrzna pętla");
-			// times.map(e => {
-				// return this.findLoop(e, loopID, reps);
-			// });
+			times.map(e => {
+				return this.findLoop(e, loopID, reps);
+			});
 		}
 
 		this.props.editTimes(times);

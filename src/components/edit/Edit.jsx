@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import EditHeader from './EditHeader.jsx';
 import EditFooter from './EditFooter.jsx';
-import NewElement from './EditNewElement.jsx';
 import Tree from './../sets/Tree.jsx';
+import AddLoop from './../edit/AddLoop.jsx';
+import AddTimer from './../edit/AddTimer.jsx';
 
 class Edit extends Component {
 	render() {
@@ -14,7 +15,13 @@ class Edit extends Component {
 					edit={true}
 					editTimes={this.props.editTimes}
 				/>
-				<NewElement
+				<AddLoop
+					loopID="mainLoop"
+					times={this.props.times}
+					editTimes={this.props.editTimes}
+				/>
+				<AddTimer
+					loopID="mainLoop"
 					times={this.props.times}
 					editTimes={this.props.editTimes}
 				/>

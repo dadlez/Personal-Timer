@@ -6,46 +6,42 @@ const uuidv4 = require('uuid/v4');
 
 class Tree extends Component {
 
-	renderElement(e) {
-		const type = e.type;
+	renderElement(times) {
+		let result = times.map(e => {
+			const type = e.type;
 
-		if (type === "loop") {
-			const reps = e.reps;
-
-			if (e.content.length > 0) {
-				e.content.forEach(innerE => this.renderElement(innerE));
+			if (type.includes("loop")) {
+				return(
+					<li key={uuidv4()}>
+						<Loop
+							loopID={e.loopID}
+							reps={e.reps}
+							times={this.props.times}
+							editTimes={this.props.editTimes}
+							content={e.content.length != 0 ? this.renderElement(e.content) : null}
+						/>
+					</li>
+				)
+			} else {
+				return (
+					<li key={uuidv4()}>
+						<Timer
+							minutes={e.minutes}
+							seconds={e.seconds}
+							edit={this.props.edit}
+						/>
+					</li>
+				)
 			}
-
-			return(
-				<div>
-					<Loop
-						loopID={uuidv4()}
-						reps={reps}
-						times={this.props.times}
-						editTimes={this.props.editTimes}
-					/>
-				</div>
-			)
-		} else if (type === "timer") {
-			return (
-				<Timer
-					minutes={e.minutes}
-					seconds={e.seconds}
-					edit={this.props.edit}
-				/>
-			)
-		}
+		})
+		return result;
 	}
 
 	render() {
 		return(
 			<ul className="tree">
-				{this.props.times.map(e => {
-					return (
-						<li key={uuidv4()}>
-							{this.renderElement(e)}
-						</li>
-					)
+				{this.renderElement(this.props.times).map(e => {
+					return e;
 				})}
 			</ul>
 		)
