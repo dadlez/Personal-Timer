@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button } from 'react-bootstrap/lib';
 import EditHeader from './EditHeader.jsx';
 import EditFooter from './EditFooter.jsx';
 import Tree from './../sets/Tree.jsx';
@@ -15,6 +16,7 @@ class Edit extends Component {
 					edit={true}
 					editTimes={this.props.editTimes}
 				/>
+			<hr />
 				<AddLoop
 					loopID="mainLoop"
 					times={this.props.times}
@@ -25,7 +27,8 @@ class Edit extends Component {
 					times={this.props.times}
 					editTimes={this.props.editTimes}
 				/>
-				<button onClick={() => this.props.changeView("run")}>Run this set</button>
+				<hr />
+				<Button bsStyle="primary" block onClick={() => this.props.changeView("run")}>Run this set</Button>
 			</div>
 		)
 	}

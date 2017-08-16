@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Form, FormGroup, FormControl } from 'react-bootstrap';
 
 const uuidv4 = require('uuid/v4');
 
@@ -50,17 +51,20 @@ class AddLoop extends Component {
 
 	render() {
 		return(
-			<form onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
-				<label>
-					New loop
-					<input
+			<Form inline onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
+				<FormGroup>
+					New loop [number of repetitions]
+					<FormControl
 						type="number"
 						name="reps"
 						defaultValue={2}
+						bsClass="loop-reps"
 					/>
-					<input type="submit" defaultValue="Add" />
-				</label>
-			</form>
+					<FormControl
+						type="submit"
+						defaultValue="Add" />
+				</FormGroup>
+			</Form>
 		)
 	}
 }

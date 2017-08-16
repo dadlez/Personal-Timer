@@ -11,46 +11,6 @@ require('./../scss/main.scss');
 const uuidv4 = require('uuid/v4');
 
 // testing times var:
-const times = [
-	{
-		type: "loop",
-		loopID: uuidv4(),
-		reps: 1,
-		content: [
-			{
-				type: "loop",
-				loopID: uuidv4(),
-				reps: 1,
-				content: [
-					{
-						type: "timer",
-						minutes: 0,
-						seconds: 5,
-						active: false
-					}
-				]
-			},
-			{
-				type: "timer",
-				minutes: 0,
-				seconds: 5,
-				active: false
-			},
-			{
-				type: "timer",
-				minutes: 0,
-				seconds: 5,
-				active: false
-			}
-		]
-	},
-	{
-		type: "loop",
-		loopID: uuidv4(),
-		reps: 1,
-		content: []
-	}
-]
 
 class App extends Component {
 	constructor(props) {

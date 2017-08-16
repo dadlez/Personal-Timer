@@ -1,4 +1,4 @@
-import React, { Component }from 'react';
+import React, { Component } from 'react';
 import AddLoop from './../edit/AddLoop.jsx';
 import AddTimer from './../edit/AddTimer.jsx';
 

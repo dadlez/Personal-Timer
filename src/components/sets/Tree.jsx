@@ -38,6 +38,10 @@ class Tree extends Component {
 	}
 
 	render() {
+		if (this.props.times.length === 0) {
+			return <p>Don't want to train??? Add a timer and GO!</p>
+		}
+
 		return(
 			<ul className="tree">
 				{this.renderElement(this.props.times).map(e => {

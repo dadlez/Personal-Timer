@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Form, InputGroup, FormGroup, FormControl } from 'react-bootstrap/lib';
 
 class AddTimer extends Component {
 	findLoop(e, loopID, min, sec) {
@@ -49,22 +50,29 @@ class AddTimer extends Component {
 
 	render() {
 		return(
-			<form onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
-				<label>
-					New timer
-					<input
-						type="number"
-						name="minutes"
-						defaultValue={0}
-					/>
-					<input
-						type="number"
-						name="seconds"
-						defaultValue={10}
-					/>
-					<input type="submit" defaultValue="Add"/>
-				</label>
-			</form>
+			<Form className="timer" inline onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
+				<FormGroup>
+					New timer [mm]:[ss]
+					<InputGroup>
+						<FormControl
+							type="number"
+							name="minutes"
+							defaultValue={0}
+							bsClass="timer-minutes"
+						/>
+						 :
+						<FormControl
+							type="number"
+							name="seconds"
+							defaultValue={10}
+							bsClass="timer-seconds"
+						/>
+					</InputGroup>
+					<FormControl
+						type="submit"
+						defaultValue="Add"/>
+				</FormGroup>
+			</Form>
 		)
 	}
 }
