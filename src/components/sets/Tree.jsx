@@ -14,7 +14,7 @@ class Tree extends Component {
 				return(
 					<li key={uuidv4()}>
 						<Loop
-							loopID={e.loopID}
+							id={e.id}
 							reps={e.reps}
 							times={this.props.times}
 							editTimes={this.props.editTimes}
@@ -26,6 +26,7 @@ class Tree extends Component {
 				return (
 					<li key={uuidv4()}>
 						<Timer
+							id={e.id}
 							minutes={e.minutes}
 							seconds={e.seconds}
 							edit={this.props.edit}

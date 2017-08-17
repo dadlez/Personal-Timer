@@ -5,13 +5,13 @@ const uuidv4 = require('uuid/v4');
 
 class AddLoop extends Component {
 
-	findLoop(e, loopID, reps) {
+	findLoop(e, id, reps) {
 		if (e.type === "loop") {
-			if (e.loopID === loopID) {
+			if (e.id === id) {
 
 				const result = {
 					type: "loop",
-					loopID: uuidv4(),
+					id: uuidv4(),
 					reps,
 					content: []
 				}
@@ -20,7 +20,7 @@ class AddLoop extends Component {
 
 			} else if (e.content.length > 0){
 				return e.content.map(innerE => {
-					return this.findLoop(innerE, loopID, reps);
+					return this.findLoop(innerE, id, reps);
 				});
 			} else {
 				return e;
@@ -28,21 +28,21 @@ class AddLoop extends Component {
 		}
 	}
 
-	handleSubmit(event, loopID) {
+	handleSubmit(event, id) {
 		event.preventDefault();
 		let times = this.props.times;
 		const reps = event.target.elements.reps.value;
 
-		if (loopID === "mainLoop") {
+		if (id === "mainLoop") {
 			times.push({
 				type: "loop",
-				loopID: uuidv4(),
+				id: uuidv4(),
 				reps,
 				content: []
 			});
 		} else {
 			times.map(e => {
-				return this.findLoop(e, loopID, reps);
+				return this.findLoop(e, id, reps);
 			});
 		}
 
@@ -51,7 +51,7 @@ class AddLoop extends Component {
 
 	render() {
 		return(
-			<Form inline onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
+			<Form inline onSubmit={event => this.handleSubmit(event, this.props.id)}>
 				<FormGroup>
 					New loop [number of repetitions]
 					<FormControl

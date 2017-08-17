@@ -7,12 +7,21 @@ class Run extends Component {
 
 	render() {
 		return(
-			<div>
-				<Tree times={this.props.times} run={this.props.run} edit={false} />
+			<div className="run">
+				<Tree
+					times={this.props.times}
+					run={this.props.run}
+					edit={false}
+				/>
 				<hr />
-				<RunFooter handleStart={this.props.handleStart} handleStop={this.props.handleStop} />
+				<RunFooter
+					handleStart={this.props.handleStart}
+					handleStop={this.props.handleStop}
+				/>
 				<hr />
-				<Button bsStyle="primary" block onClick={() => this.props.changeView("edit")}>Edit this set</Button>
+				<button
+					className="btn btn-primary"
+					onClick={() => this.props.changeView("edit")}>Edit this set</button>
 			</div>
 		)
 	}

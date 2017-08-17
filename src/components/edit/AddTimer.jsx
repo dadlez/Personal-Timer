@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { Form, InputGroup, FormGroup, FormControl } from 'react-bootstrap/lib';
 
+const uuidv4 = require('uuid/v4');
+
 class AddTimer extends Component {
-	findLoop(e, loopID, min, sec) {
+	findLoop(e, id, min, sec) {
 		if (e.type === "loop") {
-			if (e.loopID === loopID) {
+			if (e.id === id) {
 
 				const result = {
+					id: uuidv4(),
 					type: "timer",
 					minutes: min,
 					seconds: sec,
@@ -17,7 +20,7 @@ class AddTimer extends Component {
 
 			} else if (e.content.length > 0){
 				return e.content.map(innerE => {
-					return this.findLoop(innerE, loopID, min, sec);
+					return this.findLoop(innerE, id, min, sec);
 				});
 			} else {
 				return e;
@@ -25,15 +28,16 @@ class AddTimer extends Component {
 		}
 	}
 
-	handleSubmit(event, loopID) {
+	handleSubmit(event, id) {
 		event.preventDefault();
 
 		let times = this.props.times;
 		const min = event.target.elements.minutes.valueAsNumber;
 		const sec = event.target.elements.seconds.valueAsNumber;
 
-		if (loopID === "mainLoop") {
+		if (id === "mainLoop") {
 			times.push({
+				id: uuidv4(),
 				type: "timer",
 				minutes: min,
 				seconds: sec,
@@ -41,7 +45,7 @@ class AddTimer extends Component {
 			});
 		} else {
 			times.map(e => {
-				return this.findLoop(e, loopID, min, sec);
+				return this.findLoop(e, id, min, sec);
 			});
 		}
 
@@ -50,7 +54,7 @@ class AddTimer extends Component {
 
 	render() {
 		return(
-			<Form className="timer" inline onSubmit={event => this.handleSubmit(event, this.props.loopID)}>
+			<Form className="timer" inline onSubmit={event => this.handleSubmit(event, this.props.id)}>
 				<FormGroup>
 					New timer [mm]:[ss]
 					<InputGroup>

@@ -1,16 +1,12 @@
 body {
-	display: flex;
-	justify-content: center;
-}
-
-.container {
-	display: flex;
-	justify-content: center;
+	box-sizing: border-box;
 }
 
 .logo img {
 	width: 50px;
 	height: 50px;
+	border: 1px solid lightGrey;
+	border-radius: 4px;
 }
 
 .timer-minutes, .timer-seconds, .loop-reps {
@@ -19,4 +15,20 @@ body {
 	border-radius: 4px;
 	padding: 5px;
 	margin: 5px;
+}
+
+.view {
+	width: 80%;
+	max-width: 400px;
+	display: flex;
+	justify-content: center;
+	margin: 0 auto;
+}
+
+.tree, .loop {
+	list-style: none;
+}
+
+.addElement {
+	width: 350px;
 }

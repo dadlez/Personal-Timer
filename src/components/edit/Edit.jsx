@@ -9,26 +9,28 @@ import AddTimer from './../edit/AddTimer.jsx';
 class Edit extends Component {
 	render() {
 		return (
-			<div>
+			<div className="edit">
 				<EditHeader />
 				<Tree
 					times={this.props.times}
 					edit={true}
 					editTimes={this.props.editTimes}
 				/>
-			<hr />
-				<AddLoop
-					loopID="mainLoop"
-					times={this.props.times}
-					editTimes={this.props.editTimes}
-				/>
-				<AddTimer
-					loopID="mainLoop"
-					times={this.props.times}
-					editTimes={this.props.editTimes}
-				/>
 				<hr />
-				<Button bsStyle="primary" block onClick={() => this.props.changeView("run")}>Run this set</Button>
+				<div className="addElement">
+					<AddLoop
+						id="mainLoop"
+						times={this.props.times}
+						editTimes={this.props.editTimes}
+					/>
+					<AddTimer
+						id="mainLoop"
+						times={this.props.times}
+						editTimes={this.props.editTimes}
+					/>
+				</div>
+				<hr />
+				<button className="btn btn-primary" onClick={() => this.props.changeView("run")}>Run this set</button>
 			</div>
 		)
 	}

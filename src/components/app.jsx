@@ -112,7 +112,9 @@ class App extends Component {
 			this.startInterval();
 		}
 
-		return( <div>{this.renderView(this.state.view)}</div>)
+		return(
+			<div className="view">{this.renderView(this.state.view)}</div>
+		)
 	}
 }
 

@@ -7,12 +7,12 @@ const uuidv4 = require('uuid/v4');
 const times = [
 	{
 		type: "loop1",
-		loopID: uuidv4(),
+		id: uuidv4(),
 		reps: 1,
 		content: [
 			{
 				type: "loop2",
-				loopID: uuidv4(),
+				id: uuidv4(),
 				reps: 1,
 				content: [
 					{
@@ -48,7 +48,7 @@ class Test extends Component {
 				return (
 					<li key={uuidv4()}>
 						<Loop
-							loopID={e.loopID}
+							id={e.id}
 							reps={e.reps}
 							times={times}
 							editTimes={this.props.editTimes}

@@ -4,14 +4,12 @@ import { Button, ButtonToolbar } from 'react-bootstrap/lib'
 class RunFooter extends Component {
 	render() {
 		return (
-				<footer className="controls container">
-					<ButtonToolbar>
-						<Button bsStyle="danger" className="stop" onClick={this.props.handleStop}>stop</Button>
-						<Button bsStyle="success" className="start" onClick={this.props.handleStart}>start</Button>
-						<Button bsStyle="warning" className="pause">pause</Button>
-						<Button bsStyle="primary" className="return">return</Button>
-					</ButtonToolbar>
-				</footer>
+			<footer>
+				<button className="btn btn-danger stop" onClick={this.props.handleStop}>stop</button>
+				<button className="btn btn-success start" onClick={this.props.handleStart}>start</button>
+				<button className="btn btn-warning pause">pause</button>
+				<button className="btn btn-primary return">return</button>
+			</footer>
 		)
 	}
 }
