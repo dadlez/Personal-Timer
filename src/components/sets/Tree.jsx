@@ -16,9 +16,9 @@ class Tree extends Component {
 						<Loop
 							id={e.id}
 							reps={e.reps}
+							content={e.content.length != 0 ? this.renderElement(e.content) : null}
 							times={this.props.times}
 							editTimes={this.props.editTimes}
-							content={e.content.length != 0 ? this.renderElement(e.content) : null}
 						/>
 					</li>
 				)
@@ -30,6 +30,8 @@ class Tree extends Component {
 							minutes={e.minutes}
 							seconds={e.seconds}
 							edit={this.props.edit}
+							times={this.props.times}
+							editTimes={this.props.editTimes}
 						/>
 					</li>
 				)

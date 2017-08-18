@@ -43,6 +43,7 @@ class Timer extends React.Component {
 	render() {
 		return(
 			<div className="time">
+				{this.props.id}
 				{this.state.minutes} : {this.state.seconds}
 				<RemoveItem
 					id={this.props.id}
