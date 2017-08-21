@@ -17,6 +17,7 @@ class Tree extends Component {
 							id={e.id}
 							reps={e.reps}
 							content={e.content.length != 0 ? this.renderElement(e.content) : null}
+							edit={this.props.edit}
 							times={this.props.times}
 							editTimes={this.props.editTimes}
 						/>
