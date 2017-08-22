@@ -24,7 +24,7 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.SourceMapDevToolPlugin({
-			filename: './src/out.js',
+			filename: './out.js',
 			exclude: ['/node_modules/','vendor.js']
 		})
 	]
