@@ -55,21 +55,26 @@ class App extends Component {
 		if (e.seconds === 0 && e.minutes === 0) {
 			console.log("switch timer");
 			// find next timer in state.sequence and set it as active
-			this.state.sequence.forEach((e, i) => {
+			let sequence = this.state.sequence;
+			const len = this.state.sequence.length;
+			let i=0;
+
+			while (i < len) {
 				console.log(i);
 				if (e.id === this.state.activeTimer.id) {
 					let j=i+1;
-					let len = this.state.sequence.length;
 					while (j < len) {
 						if (this.state.sequence[j].type === "timer") {
 							newActiveTimer = this.state.sequence[j];
-							len = j;
+							j = len;
+							i = len;
 							console.log("new activeTimer", newActiveTimer);
 						}
 						j++;
 					}
 				}
-			});
+				i++;
+			}
 		} else if (e.seconds < 1) {
 			e.minutes -= 1;
 			e.seconds = 59;
@@ -81,7 +86,7 @@ class App extends Component {
 	}
 
 	// !!! bug
-	// przepisać z dwóch list timers i loops na jedną listę sequence
+	// przepisać z dwóch list timers i loops na jedną zmienną sequence
 	updateItem(e) {
 		let newActiveTimer = this.state.activeTimer;
 		let newActiveLoop = this.state.activeLoop;
@@ -97,7 +102,6 @@ class App extends Component {
 					loops.forEach((loop, i) => {
 						if (loop.id === this.state.activeLoop.id) {
 						 	newActiveLoop = loops[i + 1];
-							// this.setState({ activeLoop: loops[i + 1] })
 						}
 					});
 				}

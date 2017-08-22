@@ -24977,28 +24977,31 @@ var App = function (_Component) {
 	}, {
 		key: 'updateTime',
 		value: function updateTime(e) {
-			var _this2 = this;
-
 			var newActiveTimer = this.state.activeTimer;
 
 			if (e.seconds === 0 && e.minutes === 0) {
 				console.log("switch timer");
 				// find next timer in state.sequence and set it as active
-				this.state.sequence.forEach(function (e, i) {
+				var sequence = this.state.sequence;
+				var len = this.state.sequence.length;
+				var i = 0;
+
+				while (i < len) {
 					console.log(i);
-					if (e.id === _this2.state.activeTimer.id) {
+					if (e.id === this.state.activeTimer.id) {
 						var j = i + 1;
-						var len = _this2.state.sequence.length;
 						while (j < len) {
-							if (_this2.state.sequence[j].type === "timer") {
-								newActiveTimer = _this2.state.sequence[j];
-								len = j;
+							if (this.state.sequence[j].type === "timer") {
+								newActiveTimer = this.state.sequence[j];
+								j = len;
+								i = len;
 								console.log("new activeTimer", newActiveTimer);
 							}
 							j++;
 						}
 					}
-				});
+					i++;
+				}
 			} else if (e.seconds < 1) {
 				e.minutes -= 1;
 				e.seconds = 59;
@@ -25010,12 +25013,12 @@ var App = function (_Component) {
 		}
 
 		// !!! bug
-		// przepisać z dwóch list timers i loops na jedną listę sequence
+		// przepisać z dwóch list timers i loops na jedną zmienną sequence
 
 	}, {
 		key: 'updateItem',
 		value: function updateItem(e) {
-			var _this3 = this;
+			var _this2 = this;
 
 			var newActiveTimer = this.state.activeTimer;
 			var newActiveLoop = this.state.activeLoop;
@@ -25029,9 +25032,8 @@ var App = function (_Component) {
 						//set next loop as active
 					} else {
 						loops.forEach(function (loop, i) {
-							if (loop.id === _this3.state.activeLoop.id) {
+							if (loop.id === _this2.state.activeLoop.id) {
 								newActiveLoop = loops[i + 1];
-								// this.setState({ activeLoop: loops[i + 1] })
 							}
 						});
 					}
@@ -25039,7 +25041,7 @@ var App = function (_Component) {
 					e.content = e.content.map(function (innerE) {
 						var newE = {};
 
-						var _updateItem = _this3.updateItem(innerE);
+						var _updateItem = _this2.updateItem(innerE);
 
 						var _updateItem2 = _slicedToArray(_updateItem, 3);
 
@@ -25069,7 +25071,7 @@ var App = function (_Component) {
 	}, {
 		key: 'updateState',
 		value: function updateState(times) {
-			var _this4 = this;
+			var _this3 = this;
 
 			var newActiveTimer = this.state.activeTimer;
 			var newActiveLoop = this.state.activeLoop;
@@ -25081,10 +25083,10 @@ var App = function (_Component) {
 				console.log("times element", e.type, e.id);
 
 				if (e.type === "loop") {
-					if (e.id === _this4.state.activeLoop.id) {
+					if (e.id === _this3.state.activeLoop.id) {
 						console.log("loop active");
 						// reduce number of reps in active loop
-						if (_this4.state.activeLoop.reps > 0) {
+						if (_this3.state.activeLoop.reps > 0) {
 							e.reps -= 1;
 							newActiveLoop = e;
 
@@ -25092,7 +25094,7 @@ var App = function (_Component) {
 							e.content = e.content.map(function (innerE) {
 								var newE = {};
 
-								var _updateItem3 = _this4.updateItem(innerE);
+								var _updateItem3 = _this3.updateItem(innerE);
 
 								var _updateItem4 = _slicedToArray(_updateItem3, 3);
 
@@ -25105,9 +25107,9 @@ var App = function (_Component) {
 							});
 							//set next loop as active
 						} else {
-							_this4.state.loops.forEach(function (loop, i) {
-								if (loop.id === _this4.state.activeLoop.id) {
-									newActiveLoop = _this4.state.loops[i + 1];
+							_this3.state.loops.forEach(function (loop, i) {
+								if (loop.id === _this3.state.activeLoop.id) {
+									newActiveLoop = _this3.state.loops[i + 1];
 								}
 							});
 						}
@@ -25115,7 +25117,7 @@ var App = function (_Component) {
 						e.content = e.content.map(function (innerE) {
 							var newE = {};
 
-							var _updateItem5 = _this4.updateItem(innerE);
+							var _updateItem5 = _this3.updateItem(innerE);
 
 							var _updateItem6 = _slicedToArray(_updateItem5, 3);
 
@@ -25129,10 +25131,10 @@ var App = function (_Component) {
 					}
 					// handle timer update
 				} else {
-					if (e.id === _this4.state.activeTimer.id) {
+					if (e.id === _this3.state.activeTimer.id) {
 						var _newE = {};
 
-						var _updateTime3 = _this4.updateTime(e);
+						var _updateTime3 = _this3.updateTime(e);
 
 						var _updateTime4 = _slicedToArray(_updateTime3, 2);
 
@@ -25156,10 +25158,10 @@ var App = function (_Component) {
 	}, {
 		key: 'startInterval',
 		value: function startInterval() {
-			var _this5 = this;
+			var _this4 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this5.updateState(_this5.state.times);
+				_this4.updateState(_this4.state.times);
 			}, 1000);
 		}
 	}, {
