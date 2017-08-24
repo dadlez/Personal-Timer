@@ -1,0 +1,87 @@
+function handleStart {
+	if state.activeTimer is empty {
+		[ newActiveTimer, newActiveLoop ] = findFirstTimer(this.state.times, activeLoop)
+	}
+
+}
+
+function findFirstTimer(times, parentLoop) {
+	for item in times {
+		if item.type == loop {
+			findFirstTimer(item.content, item)
+		} else { // jest timer
+			activeTimer = item
+			activeLoop = parentLoop
+		}
+	}
+}
+
+
+///////////////
+// switch active timer and loops
+
+function switchActive(parentLoop) {
+
+
+	// nie koniec pętli, pętla od początku
+	if activeLoop.reps > 0
+		newActiveLoop.reps -= 1
+
+		for e, i in activeLoop.content {
+			if e.id == activeTimer.id {
+				newActiveTimer = e
+			}
+		}
+	}
+
+	// koniec pętli - zmiana na następną
+	if parentLoop.reps > 0 {
+		for (loop, i) in parentLoop.content { //przerobić na while
+			if loop.id == activeLoop.id {
+				newActiveLoop = parentLoop.content[i+1]
+			}
+	}
+}
+
+
+loop1
+	loop2 a
+		timer1
+		timer2
+	loop3
+		loop4
+			timer3
+	loop5
+		timer4
+		loop6
+			timer5
+	timer6
+timer7
+loop7
+	timer8
+
+jeśli loop1 ma 0 powtórzeń, wybierz loop7
+jeśli nie, sprawdź, czy w środku są loopy
+
+
+//////////////
+oś czasu
+counter = 0
+
+// budowanie sekwencji z obiektu
+for item in object {
+	if loop {
+		seq.push(item)
+		for innerItem in loop.content {
+			start += item.duration
+			item.start = start
+			seq.push(item)
+
+		}
+	} else if timer {
+		// dodanie timera z zapisanem czasem startu
+		start += item.duration
+		item.start = start
+		seq.push(item)
+	}
+}
