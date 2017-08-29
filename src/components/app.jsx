@@ -92,20 +92,49 @@ class App extends Component {
 		let newActiveTimer = this.state.activeTimer;
 		let newActiveLoop = this.state.activeLoop;
 
+		function switchActiveLoop() {
+			let loops = [];
+
+			// make loops sequence
+			function loopTimes(arr) {
+				arr.forEach(e => {
+					if (e.type === "loop") {
+						loops.push(e);
+
+						if (e.content.length > 0) {
+							for (let i = 0; i < e.reps; i++) {
+								loopTimes(e.content);
+							}
+						}
+					}
+				});
+			}
+
+			loopTimes(this.state.times);
+			print("loop sequence", loops)
+			// find active loop and set next as active
+			i = 0;
+			while (i < loops.length) {
+				if (loops[i].id === newActiveLoop.id) {
+					newActiveLoop = loops[i + 1];
+					i = loops.length;
+				}
+				i++;
+			}
+			return newActiveLoop;
+		}
+
+		// main switching function
 		if (e.type === "loop") {
 			if (e.id === this.state.activeLoop.id) {
-				// reduce number of reps in active loop
 				if (this.state.activeLoop.reps > 0) {
+					// reduce number of reps in active loop
 					e.reps -= 1;
 					newActiveLoop = e;
-				//set next loop as active
 				} else {
+					//set next loop as active
 					console.log("swich active loop");
-					// loops.forEach((loop, i) => {
-					// 	if (loop.id === this.state.activeLoop.id) {
-					// 	 	newActiveLoop = loops[i + 1];
-					// 	}
-					// });
+					newActiveLoop = switchActiveLoop();
 				}
 			} else if (e.content > 0) {
 				e.content = e.content.map(innerE => {
@@ -115,8 +144,8 @@ class App extends Component {
 					return newE;
 				});
 			}
-		// handle timer update
 		} else {
+			// handle timer update
 			if (e.id === this.state.activeTimer.id) {
 				[ newE, newActiveTimer ] = this.updateTime(e);
 				e = newE;

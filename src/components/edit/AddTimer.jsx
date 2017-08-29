@@ -13,7 +13,8 @@ class AddTimer extends Component {
 					type: "timer",
 					minutes: min,
 					seconds: sec,
-					active: this.props.times.length == 0 ? true : false
+					active: this.props.times.length == 0 ? true : false,
+					activeLoop: e
 				}
 				e.content.push(result);
 				return e;
@@ -41,7 +42,8 @@ class AddTimer extends Component {
 				type: "timer",
 				minutes: min,
 				seconds: sec,
-				active: this.props.times.length == 0 ? true : false
+				active: this.props.times.length == 0 ? true : false,
+				activeLoop: "mainLoop"
 			});
 		} else {
 			times.map(e => {
