@@ -22129,7 +22129,8 @@ var AddLoop = function (_Component) {
 						type: "loop",
 						id: uuidv4(),
 						reps: reps,
-						content: []
+						content: [],
+						parentLoop: e
 					};
 					e.content.push(result);
 					return e;
@@ -22156,7 +22157,8 @@ var AddLoop = function (_Component) {
 					type: "loop",
 					id: uuidv4(),
 					reps: reps,
-					content: []
+					content: [],
+					parentLoop: "mainLoop"
 				});
 			} else {
 				times.map(function (e) {
@@ -24705,7 +24707,7 @@ var AddTimer = function (_Component) {
 						minutes: min,
 						seconds: sec,
 						active: this.props.times.length == 0 ? true : false,
-						activeLoop: e
+						parentLoop: e
 					};
 					e.content.push(result);
 					return e;
@@ -24736,7 +24738,7 @@ var AddTimer = function (_Component) {
 					minutes: min,
 					seconds: sec,
 					active: this.props.times.length == 0 ? true : false,
-					activeLoop: "mainLoop"
+					parentLoop: "mainLoop"
 				});
 			} else {
 				times.map(function (e) {
@@ -24797,8 +24799,6 @@ exports.default = AddTimer;
 "use strict";
 
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(0);
@@ -24846,9 +24846,7 @@ var App = function (_Component) {
 		};
 
 		_this.handleStart = function (event) {
-			// set active elements in sequence and start timer
-			console.log("start timer");
-
+			// set active timer if not set and start countdown
 			event.preventDefault();
 
 			function isEmpty(obj) {
@@ -24858,41 +24856,42 @@ var App = function (_Component) {
 				return true;
 			}
 
-			var newActiveLoop = _this.state.activeLoop;
-			var newActiveTimer = _this.state.activeTimer;
+			var activeTimer = _this.state.activeTimer;
 
-			var sequence = _this.makeItemsList(_this.state.times);
-
-			//set new active timer
-			if (isEmpty(_this.state.activeTimer)) {
-				console.log("active timer empty, will be set to default");
-				;
-				if (_this.state.times.length > 0) {
-
-					console.log("sequence", sequence);
-					console.log("sequence length", sequence.length);
-					if (sequence.length > 0) {
-						var len = sequence.length;
-						var _i = 0;
-						var parentLoop = {};
-
-						while (_i < len) {
-							if (sequence[_i].type === "loop") if (sequence[_i].type == "timer") {
-								newActiveTimer = sequence[_i];
-								_i = len;
-								console.log("set activeTimer", newActiveTimer);
-							}
-							_i++;
+			if (isEmpty(activeTimer)) {
+				var _iterateLoop = function _iterateLoop(itemsList) {
+					for (var j = 0; j < itemsList.length; j++) {
+						if (itemsList[j].type === "timer") {
+							activeTimer = itemsList[j];
+							i = len;
+							j = itemsList.length;
+						} else if (itemsList[j].content.length > 0) {
+							_iterateLoop(itemsList[j].content);
 						}
+					}
+				};
+
+				//set new active timer
+				console.log("active timer empty, will be set to default");
+
+				var times = _this.state.times;
+				var len = times.length;
+
+				for (var _i = 0; _i < len; _i++) {
+					if (times[_i].type === "timer") {
+						activeTimer = times[_i];
+						_i = len;
+					} else if (times[_i].content.length > 0) {
+						_iterateLoop(times.content);
 					}
 				}
 			}
 
+			console.log(activeTimer);
+
 			_this.setState({
 				run: true,
-				activeTimer: newActiveTimer,
-				activeLoop: newActiveLoop,
-				sequence: sequence
+				activeTimer: activeTimer
 			});
 		};
 
@@ -24911,259 +24910,52 @@ var App = function (_Component) {
 			view: "edit",
 			times: [],
 			run: false,
-			timers: [],
-			loops: [],
-			sequence: [],
-			activeTimer: {},
-			activeLoop: {}
+			activeTimer: {}
 		};
 		_this.timerInterval = 0;
 		return _this;
 	}
 
 	_createClass(App, [{
-		key: 'makeItemsList',
-		value: function makeItemsList(times) {
-			var sequence = [];
-
-			function loopTimes(arr) {
-				arr.forEach(function (e) {
-					sequence.push(e);
-
-					if (e.type === "loop") {
-						if (e.content.length > 0) {
-							loopTimes(e.content);
-						}
-					}
-				});
-			}
-
-			loopTimes(times);
-
-			return sequence;
+		key: 'switchActive',
+		value: function switchActive() {
+			console.log("switch active");
+			activeTimer = this.state.activeTimer;
 		}
 	}, {
 		key: 'updateTime',
-		value: function updateTime(e) {
-			var newActiveTimer = this.state.activeTimer;
-
-			if (e.seconds === 0 && e.minutes === 0) {
-				console.log("switch timer");
-				// find next timer in state.sequence and set it as active
-				var sequence = this.state.sequence;
-				var len = sequence.length;
-				var _i2 = 0;
-
-				while (_i2 < len) {
-					console.log("old timer sequencw index", _i2);
-					if (e.id === this.state.activeTimer.id) {
-						var j = _i2 + 1;
-						while (j < len) {
-							console.log("new timer sequencw index", j);
-							if (sequence[j].type === "timer") {
-								newActiveTimer = sequence[j];
-								j = len;
-								_i2 = len;
-								console.log("new activeTimer", newActiveTimer);
-							}
-							j++;
-						}
-					}
-					_i2++;
-				}
-			} else if (e.seconds < 1) {
-				e.minutes -= 1;
-				e.seconds = 59;
+		value: function updateTime(timer) {
+			if (timer.seconds < 1) {
+				timer.minutes -= 1;
+				timer.seconds = 59;
 			} else {
-				e.seconds -= 1;
+				timer.seconds -= 1;
 			}
-			console.log("updateTime", e);
-			return [e, newActiveTimer];
-		}
-
-		// !!! bug
-		// przepisać z dwóch list timers i loops na jedną zmienną sequence
-
-	}, {
-		key: 'updateItem',
-		value: function updateItem(e) {
-			var _this2 = this;
-
-			var newActiveTimer = this.state.activeTimer;
-			var newActiveLoop = this.state.activeLoop;
-
-			function switchActiveLoop() {
-				var loops = [];
-
-				// make loops sequence
-				function loopTimes(arr) {
-					arr.forEach(function (e) {
-						if (e.type === "loop") {
-							loops.push(e);
-
-							if (e.content.length > 0) {
-								for (var _i3 = 0; _i3 < e.reps; _i3++) {
-									loopTimes(e.content);
-								}
-							}
-						}
-					});
-				}
-
-				loopTimes(this.state.times);
-				print("loop sequence", loops);
-				// find active loop and set next as active
-				i = 0;
-				while (i < loops.length) {
-					if (loops[i].id === newActiveLoop.id) {
-						newActiveLoop = loops[i + 1];
-						i = loops.length;
-					}
-					i++;
-				}
-				return newActiveLoop;
-			}
-
-			// main switching function
-			if (e.type === "loop") {
-				if (e.id === this.state.activeLoop.id) {
-					if (this.state.activeLoop.reps > 0) {
-						// reduce number of reps in active loop
-						e.reps -= 1;
-						newActiveLoop = e;
-					} else {
-						//set next loop as active
-						console.log("swich active loop");
-						newActiveLoop = switchActiveLoop();
-					}
-				} else if (e.content > 0) {
-					e.content = e.content.map(function (innerE) {
-						var newE = {};
-
-						var _updateItem = _this2.updateItem(innerE);
-
-						var _updateItem2 = _slicedToArray(_updateItem, 3);
-
-						newE = _updateItem2[0];
-						newActiveTimer = _updateItem2[1];
-						newActiveLoop = _updateItem2[2];
-
-						console.log("updated inner loop", newE);
-						return newE;
-					});
-				}
-			} else {
-				// handle timer update
-				if (e.id === this.state.activeTimer.id) {
-					var _updateTime = this.updateTime(e);
-
-					var _updateTime2 = _slicedToArray(_updateTime, 2);
-
-					newE = _updateTime2[0];
-					newActiveTimer = _updateTime2[1];
-
-					e = newE;
-				}
-			}
-			return [e, newActiveTimer, newActiveLoop];
+			return timer;
 		}
 	}, {
 		key: 'updateState',
 		value: function updateState(times) {
-			var _this3 = this;
+			var activeTimer = this.state.activeTimer;
 
-			var newActiveTimer = this.state.activeTimer;
-			var newActiveLoop = this.state.activeLoop;
-
-			console.log(newActiveTimer);
-			console.log(newActiveLoop);
-
-			times.map(function (e) {
-				console.log("times element", e.type, e.id);
-
-				if (e.type === "loop") {
-					if (e.id === _this3.state.activeLoop.id) {
-						console.log("active loop");
-						// reduce number of reps in active loop
-						if (_this3.state.activeLoop.reps > 0) {
-							e.reps -= 1;
-							console.log("reduced reps in loop", newActiveLoop);
-
-							// look through this loop content to update inner elements
-							e.content = e.content.map(function (innerE) {
-								var newE = {};
-
-								var _updateItem3 = _this3.updateItem(innerE);
-
-								var _updateItem4 = _slicedToArray(_updateItem3, 3);
-
-								newE = _updateItem4[0];
-								newActiveTimer = _updateItem4[1];
-								newActiveLoop = _updateItem4[2];
-
-								console.log("updated loop content", newE);
-								return newE;
-							});
-							newActiveLoop = e;
-							//set next loop as active
-						} else {
-							console.log("switch active loop");
-							_this3.state.loops.forEach(function (loop, i) {
-								if (loop.id === _this3.state.activeLoop.id) {
-									newActiveLoop = _this3.state.loops[i + 1];
-								}
-							});
-						}
-					} else if (e.content > 0) {
-						e.content = e.content.map(function (innerE) {
-							var newE = {};
-
-							var _updateItem5 = _this3.updateItem(innerE);
-
-							var _updateItem6 = _slicedToArray(_updateItem5, 3);
-
-							newE = _updateItem6[0];
-							newActiveTimer = _updateItem6[1];
-							newActiveLoop = _updateItem6[2];
-
-							console.log("updated inner loop", newE);
-							return newE;
-						});
-					}
-
-					// handle timer update
-				} else {
-					if (e.id === _this3.state.activeTimer.id) {
-						var _newE = {};
-
-						var _updateTime3 = _this3.updateTime(e);
-
-						var _updateTime4 = _slicedToArray(_updateTime3, 2);
-
-						_newE = _updateTime4[0];
-						newActiveTimer = _updateTime4[1];
-
-						e = _newE;
-					}
-				}
-				return e;
-			});
-			var sequence = this.makeItemsList(times);
+			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
+				this.switchActive();
+			} else {
+				this.updateTime(activeTimer);
+			}
 
 			this.setState({
 				times: times,
-				sequence: sequence,
-				activeTimer: newActiveTimer,
-				activeLoop: newActiveLoop
+				activeTimer: activeTimer
 			});
 		}
 	}, {
 		key: 'startInterval',
 		value: function startInterval() {
-			var _this4 = this;
+			var _this2 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this4.updateState(_this4.state.times);
+				_this2.updateState(_this2.state.times);
 			}, 1000);
 		}
 	}, {

@@ -16,207 +16,45 @@ class App extends Component {
 			view: "edit",
 			times: [],
 			run: false,
-			timers: [],
-			loops: [],
-			sequence: [],
-			activeTimer: {},
-			activeLoop: {}
+			activeTimer: {}
 		};
 		this.timerInterval = 0;
 	}
 
 	editTimes = (newTimes) => {
-		this.setState({ times: newTimes })
+		this.setState({ times: newTimes });
 	}
 
-	makeItemsList(times) {
-		let sequence = [];
+	switchActive() {
+		console.log("switch active");
+		activeTimer = this.state.activeTimer;
 
-		function loopTimes(arr) {
-			arr.forEach(e => {
-				sequence.push(e);
+		
 
-				if (e.type === "loop") {
-					if (e.content.length > 0) {
-						loopTimes(e.content);
-					}
-				}
-			});
-		}
-
-		loopTimes(times);
-
-		return sequence;
 	}
 
-	updateTime(e) {
-		let newActiveTimer = this.state.activeTimer;
-
-		if (e.seconds === 0 && e.minutes === 0) {
-			console.log("switch timer");
-			// find next timer in state.sequence and set it as active
-			const sequence = this.state.sequence;
-			const len = sequence.length;
-			let i=0;
-
-			while (i < len) {
-				console.log("old timer sequencw index", i);
-				if (e.id === this.state.activeTimer.id) {
-					let j=i+1;
-					while (j < len) {
-						console.log("new timer sequencw index", j);
-						if (sequence[j].type === "timer") {
-							newActiveTimer = sequence[j];
-							j = len;
-							i = len;
-							console.log("new activeTimer", newActiveTimer);
-						}
-						j++;
-					}
-				}
-				i++;
-			}
-		} else if (e.seconds < 1) {
-			e.minutes -= 1;
-			e.seconds = 59;
+	updateTime(timer) {
+		if (timer.seconds < 1) {
+			timer.minutes -= 1;
+			timer.seconds = 59;
 		} else {
-			e.seconds -= 1;
+			timer.seconds -= 1;
 		}
-		console.log("updateTime", e);
-		return [e, newActiveTimer];
-	}
-
-	// !!! bug
-	// przepisać z dwóch list timers i loops na jedną zmienną sequence
-	updateItem(e) {
-		let newActiveTimer = this.state.activeTimer;
-		let newActiveLoop = this.state.activeLoop;
-
-		function switchActiveLoop() {
-			let loops = [];
-
-			// make loops sequence
-			function loopTimes(arr) {
-				arr.forEach(e => {
-					if (e.type === "loop") {
-						loops.push(e);
-
-						if (e.content.length > 0) {
-							for (let i = 0; i < e.reps; i++) {
-								loopTimes(e.content);
-							}
-						}
-					}
-				});
-			}
-
-			loopTimes(this.state.times);
-			print("loop sequence", loops)
-			// find active loop and set next as active
-			i = 0;
-			while (i < loops.length) {
-				if (loops[i].id === newActiveLoop.id) {
-					newActiveLoop = loops[i + 1];
-					i = loops.length;
-				}
-				i++;
-			}
-			return newActiveLoop;
-		}
-
-		// main switching function
-		if (e.type === "loop") {
-			if (e.id === this.state.activeLoop.id) {
-				if (this.state.activeLoop.reps > 0) {
-					// reduce number of reps in active loop
-					e.reps -= 1;
-					newActiveLoop = e;
-				} else {
-					//set next loop as active
-					console.log("swich active loop");
-					newActiveLoop = switchActiveLoop();
-				}
-			} else if (e.content > 0) {
-				e.content = e.content.map(innerE => {
-					let newE = {};
-					[ newE, newActiveTimer, newActiveLoop ] = this.updateItem(innerE);
-					console.log("updated inner loop", newE);
-					return newE;
-				});
-			}
-		} else {
-			// handle timer update
-			if (e.id === this.state.activeTimer.id) {
-				[ newE, newActiveTimer ] = this.updateTime(e);
-				e = newE;
-			}
-		}
-		return [e, newActiveTimer, newActiveLoop];
+		return timer;
 	}
 
 	updateState(times) {
-		let newActiveTimer = this.state.activeTimer;
-		let newActiveLoop = this.state.activeLoop;
+		let activeTimer = this.state.activeTimer;
 
-
-		console.log(newActiveTimer);
-		console.log(newActiveLoop);
-
-		times.map(e => {
-			console.log("times element", e.type, e.id);
-
-			if (e.type === "loop") {
-				if (e.id === this.state.activeLoop.id) {
-					console.log("active loop");
-					// reduce number of reps in active loop
-					if (this.state.activeLoop.reps > 0) {
-						e.reps -= 1;
-						console.log("reduced reps in loop", newActiveLoop);
-
-						// look through this loop content to update inner elements
-						e.content = e.content.map(innerE => {
-							let newE = {};
-							[ newE, newActiveTimer, newActiveLoop ] = this.updateItem(innerE);
-							console.log("updated loop content", newE);
-							return newE;
-						});
-						newActiveLoop = e;
-					//set next loop as active
-					} else {
-						console.log("switch active loop");
-						this.state.loops.forEach((loop, i) => {
-							if (loop.id === this.state.activeLoop.id) {
-								newActiveLoop = this.state.loops[i + 1];
-							}
-						});
-					}
-				} else if (e.content > 0) {
-					e.content = e.content.map(innerE => {
-						let newE = {};
-						[ newE, newActiveTimer, newActiveLoop ] = this.updateItem(innerE);
-						console.log("updated inner loop", newE);
-						return newE;
-					});
-				}
-
-			// handle timer update
-			} else {
-				if (e.id === this.state.activeTimer.id) {
-					let newE = {};
-
-					[ newE, newActiveTimer ] = this.updateTime(e);
-					e = newE;
-				}
-			}
-			return e;
-		});
-		let sequence = this.makeItemsList(times);
+		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
+			this.switchActive();
+		} else {
+			this.updateTime(activeTimer);
+		}
 
 		this.setState({
 			times: times,
-			sequence: sequence,
-			activeTimer: newActiveTimer,
-			activeLoop: newActiveLoop
+			activeTimer
 		});
 	}
 
@@ -227,9 +65,7 @@ class App extends Component {
 	}
 
 	handleStart = (event) => {
-		// set active elements in sequence and start timer
-		console.log("start timer");
-
+		// set active timer if not set and start countdown
 		event.preventDefault();
 
 		function isEmpty(obj) {
@@ -237,42 +73,42 @@ class App extends Component {
 			return true;
 		}
 
-		let newActiveLoop = this.state.activeLoop;
-		let newActiveTimer = this.state.activeTimer;
+		let activeTimer = this.state.activeTimer;
 
-		let sequence = this.makeItemsList(this.state.times);
-
-		//set new active timer
-		if (isEmpty(this.state.activeTimer)) {
+		if (isEmpty(activeTimer)) {
+			//set new active timer
 			console.log("active timer empty, will be set to default");
-;
-			if (this.state.times.length > 0) {
 
-				console.log("sequence", sequence);
-				console.log("sequence length", sequence.length);
-				if (sequence.length > 0) {
-					const len = sequence.length;
-					let i = 0;
-					let parentLoop = {};
+			const times = this.state.times;
+			const len = times.length
 
-					while (i < len) {
-						if (sequence[i].type === "loop")
-						if (sequence[i].type == "timer") {
-							newActiveTimer = sequence[i];
-							i = len;
-							console.log("set activeTimer", newActiveTimer);
-						}
-						i++;
+			function iterateLoop(itemsList) {
+				for (let j = 0; j < itemsList.length; j++) {
+					if (itemsList[j].type === "timer") {
+						activeTimer = itemsList[j];
+						i = len;
+						j = itemsList.length;
+					} else if (itemsList[j].content.length > 0) {
+						iterateLoop(itemsList[j].content);
 					}
+				}
+			}
+
+			for (let i = 0; i < len; i++) {
+				if (times[i].type === "timer") {
+					activeTimer = times[i];
+					i = len;
+				} else if (times[i].content.length > 0){
+					iterateLoop(times.content);
 				}
 			}
 		}
 
+		console.log(activeTimer);
+
 		this.setState({
 			run: true,
-			activeTimer: newActiveTimer,
-			activeLoop: newActiveLoop,
-			sequence: sequence
+			activeTimer
 		});
 	}
 

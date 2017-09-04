@@ -13,7 +13,8 @@ class AddLoop extends Component {
 					type: "loop",
 					id: uuidv4(),
 					reps,
-					content: []
+					content: [],
+					parentLoop: e
 				}
 				e.content.push(result);
 				return e;
@@ -38,7 +39,8 @@ class AddLoop extends Component {
 				type: "loop",
 				id: uuidv4(),
 				reps,
-				content: []
+				content: [],
+				parentLoop: "mainLoop"
 			});
 		} else {
 			times.map(e => {
