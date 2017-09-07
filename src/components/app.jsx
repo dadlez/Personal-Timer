@@ -25,12 +25,46 @@ class App extends Component {
 		this.setState({ times: newTimes });
 	}
 
-	switchActive() {
-		console.log("switch active");
-		activeTimer = this.state.activeTimer;
 
-		
 
+	switchActive(activeTimer) {
+		// pseudocode
+		updateTimer() {
+			makeTimersList
+		}
+		updateLoop(loop) {
+			if (loop.reps > 0) {
+				reduce loop.reps
+				reset loop.content
+				return loop
+			} else {
+				return updateTimer(loop.parentLoop)
+			}
+			// } else if (timer.parentLoop.parentLoop.reps > 0) {
+			// 	reduce parentLoop.parentLoop.reps
+			// 	reset timer.parentLoop.parentLoop.content
+			// 	return timer.parentLoop.parentLoop
+			// } else if (timer.parentLoop.parentLoop.parentLoop.reps > 0) {
+			// 	reduce parentLoop.parentLoop.parentLoop.reps
+			// 	return timer.parentLoop.parentLoop.parentLoop
+			// }
+		}
+
+		times.map(e => {
+			if type = timer {
+				if id = newTimer.id {
+					return newTimer
+				} else {
+					return e
+				}
+			} else {
+				newLoop = updateLoop(e);
+
+				if id = newLoop.id {
+					return newLoop
+				}
+			}
+		})
 	}
 
 	updateTime(timer) {
@@ -46,10 +80,17 @@ class App extends Component {
 	updateState(times) {
 		let activeTimer = this.state.activeTimer;
 
+
 		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
 			this.switchActive();
 		} else {
-			this.updateTime(activeTimer);
+			times.map(e => {
+				if (e.id === activeTimer.id) {
+					return this.updateTime(activeTimer);
+				} else {
+					return e;
+				}
+			});
 		}
 
 		this.setState({
