@@ -26,45 +26,51 @@ class App extends Component {
 	}
 
 
+	findFirstTimer(items) {
+		const len = items.length;
 
-	switchActive(activeTimer) {
-		// pseudocode
-		updateTimer() {
-			makeTimersList
+		for (let i=0; i<len; i++) {
+			// console.log(items[i]);
+			if (items[i].type === "timer") {
+				console.log("found first timer", items[i]);
+				return items[i];
+				console.error("pętla działa po returnie");
+			} else if (items[i].content.length > 0){
+				return this.findFirstTimer(items[i].content);
+			} else {
+				return null;
+			}
 		}
-		updateLoop(loop) {
+	}
+
+	switchActive(timer) {
+
+		function updateLoop(loop) {
+			// return updated loop and new active timer
+
 			if (loop.reps > 0) {
-				reduce loop.reps
-				reset loop.content
-				return loop
+				// reduce number of reps
+				loop.reps = loop.reps -= 1;
+				// reset content state (reset timers and inner loops)
+				// TODO: reset loop content to initial
+				// loop.content = loop.initial;
+
+				// return first timer in loop as active
+				const newActiveTimer = this.findFirstTimer(loop.content);
+
+				if (newActiveTimer == null) { console.error("you did not specify any timer!"); }
+
+				console.log("loop to update", loop);
+				console.log("active loop reps", loop.reps);
+				console.log("newActiveTimer", newActiveTimer);
+				return [newActiveTimer, loop];
+
 			} else {
-				return updateTimer(loop.parentLoop)
+				return updateLoop(loop.parentLoop);
 			}
-			// } else if (timer.parentLoop.parentLoop.reps > 0) {
-			// 	reduce parentLoop.parentLoop.reps
-			// 	reset timer.parentLoop.parentLoop.content
-			// 	return timer.parentLoop.parentLoop
-			// } else if (timer.parentLoop.parentLoop.parentLoop.reps > 0) {
-			// 	reduce parentLoop.parentLoop.parentLoop.reps
-			// 	return timer.parentLoop.parentLoop.parentLoop
-			// }
 		}
 
-		times.map(e => {
-			if type = timer {
-				if id = newTimer.id {
-					return newTimer
-				} else {
-					return e
-				}
-			} else {
-				newLoop = updateLoop(e);
-
-				if id = newLoop.id {
-					return newLoop
-				}
-			}
-		})
+		return updateLoop(timer.parentLoop);
 	}
 
 	updateTime(timer) {
@@ -80,15 +86,22 @@ class App extends Component {
 	updateState(times) {
 		let activeTimer = this.state.activeTimer;
 
-
 		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
-			this.switchActive();
-		} else {
+			console.log("switchActive");
+			[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
+
 			times.map(e => {
+				return e; // TODO: return here update loopToUpdate
+			});
+		} else {
+			console.log("countdown");
+			times.map(e => {
+				// TODO: make function for updating times
+
 				if (e.id === activeTimer.id) {
 					return this.updateTime(activeTimer);
-				} else {
-					return e;
+				} else if (e.type === "loop"){
+					return e.content.map(innerE => {});
 				}
 			});
 		}
@@ -121,28 +134,20 @@ class App extends Component {
 			console.log("active timer empty, will be set to default");
 
 			const times = this.state.times;
-			const len = times.length
+			activeTimer = this.findFirstTimer(times);
 
-			function iterateLoop(itemsList) {
-				for (let j = 0; j < itemsList.length; j++) {
-					if (itemsList[j].type === "timer") {
-						activeTimer = itemsList[j];
-						i = len;
-						j = itemsList.length;
-					} else if (itemsList[j].content.length > 0) {
-						iterateLoop(itemsList[j].content);
-					}
-				}
-			}
-
-			for (let i = 0; i < len; i++) {
-				if (times[i].type === "timer") {
-					activeTimer = times[i];
-					i = len;
-				} else if (times[i].content.length > 0){
-					iterateLoop(times.content);
-				}
-			}
+			if (activeTimer == null) { console.error("no timer set!"); }
+			// function iterateLoop(itemsList) {
+			// 	for (let j = 0; j < itemsList.length; j++) {
+			// 		if (itemsList[j].type === "timer") {
+			// 			activeTimer = itemsList[j];
+			// 			i = len;
+			// 			j = itemsList.length;
+			// 		} else if (itemsList[j].content.length > 0) {
+			// 			iterateLoop(itemsList[j].content);
+			// 		}
+			// 	}
+			// }
 		}
 
 		console.log(activeTimer);

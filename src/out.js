@@ -24799,6 +24799,8 @@ exports.default = AddTimer;
 "use strict";
 
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(0);
@@ -24859,32 +24861,26 @@ var App = function (_Component) {
 			var activeTimer = _this.state.activeTimer;
 
 			if (isEmpty(activeTimer)) {
-				var _iterateLoop = function _iterateLoop(itemsList) {
-					for (var j = 0; j < itemsList.length; j++) {
-						if (itemsList[j].type === "timer") {
-							activeTimer = itemsList[j];
-							i = len;
-							j = itemsList.length;
-						} else if (itemsList[j].content.length > 0) {
-							_iterateLoop(itemsList[j].content);
-						}
-					}
-				};
-
 				//set new active timer
 				console.log("active timer empty, will be set to default");
 
 				var times = _this.state.times;
-				var len = times.length;
+				activeTimer = _this.findFirstTimer(times);
 
-				for (var _i = 0; _i < len; _i++) {
-					if (times[_i].type === "timer") {
-						activeTimer = times[_i];
-						_i = len;
-					} else if (times[_i].content.length > 0) {
-						_iterateLoop(times.content);
-					}
+				if (activeTimer == null) {
+					console.error("no timer set!");
 				}
+				// function iterateLoop(itemsList) {
+				// 	for (let j = 0; j < itemsList.length; j++) {
+				// 		if (itemsList[j].type === "timer") {
+				// 			activeTimer = itemsList[j];
+				// 			i = len;
+				// 			j = itemsList.length;
+				// 		} else if (itemsList[j].content.length > 0) {
+				// 			iterateLoop(itemsList[j].content);
+				// 		}
+				// 	}
+				// }
 			}
 
 			console.log(activeTimer);
@@ -24917,10 +24913,54 @@ var App = function (_Component) {
 	}
 
 	_createClass(App, [{
+		key: 'findFirstTimer',
+		value: function findFirstTimer(items) {
+			var len = items.length;
+
+			for (var i = 0; i < len; i++) {
+				// console.log(items[i]);
+				if (items[i].type === "timer") {
+					console.log("found first timer", items[i]);
+					return items[i];
+					console.error("pętla działa po returnie");
+				} else if (items[i].content.length > 0) {
+					return this.findFirstTimer(items[i].content);
+				} else {
+					return null;
+				}
+			}
+		}
+	}, {
 		key: 'switchActive',
-		value: function switchActive() {
-			console.log("switch active");
-			activeTimer = this.state.activeTimer;
+		value: function switchActive(timer) {
+
+			function updateLoop(loop) {
+				// return updated loop and new active timer
+
+				if (loop.reps > 0) {
+					// reduce number of reps
+					loop.reps = loop.reps -= 1;
+					// reset content state (reset timers and inner loops)
+					// TODO: reset loop content to initial
+					// loop.content = loop.initial;
+
+					// return first timer in loop as active
+					var newActiveTimer = this.findFirstTimer(loop.content);
+
+					if (newActiveTimer == null) {
+						console.error("you did not specify any timer!");
+					}
+
+					console.log("loop to update", loop);
+					console.log("active loop reps", loop.reps);
+					console.log("newActiveTimer", newActiveTimer);
+					return [newActiveTimer, loop];
+				} else {
+					return updateLoop(loop.parentLoop);
+				}
+			}
+
+			return updateLoop(timer.parentLoop);
 		}
 	}, {
 		key: 'updateTime',
@@ -24936,12 +24976,35 @@ var App = function (_Component) {
 	}, {
 		key: 'updateState',
 		value: function updateState(times) {
+			var _this2 = this;
+
 			var activeTimer = this.state.activeTimer;
 
 			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
-				this.switchActive();
+				console.log("switchActive");
+
+				var _switchActive = this.switchActive(activeTimer);
+
+				var _switchActive2 = _slicedToArray(_switchActive, 2);
+
+				activeTimer = _switchActive2[0];
+				loopToUpdate = _switchActive2[1];
+
+
+				times.map(function (e) {
+					return e; // TODO: return here update loopToUpdate
+				});
 			} else {
-				this.updateTime(activeTimer);
+				console.log("countdown");
+				times.map(function (e) {
+					// TODO: make function for updating times
+
+					if (e.id === activeTimer.id) {
+						return _this2.updateTime(activeTimer);
+					} else if (e.type === "loop") {
+						return e.content.map(function (innerE) {});
+					}
+				});
 			}
 
 			this.setState({
@@ -24952,10 +25015,10 @@ var App = function (_Component) {
 	}, {
 		key: 'startInterval',
 		value: function startInterval() {
-			var _this2 = this;
+			var _this3 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this2.updateState(_this2.state.times);
+				_this3.updateState(_this3.state.times);
 			}, 1000);
 		}
 	}, {

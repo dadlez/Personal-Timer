@@ -3,11 +3,10 @@ const webpack = require('webpack');
 module.exports = {
 	entry: "./src/components/app.jsx",
 	output: { filename: "./src/out.js" },
-	// devServer:	{
-	// 			inline:	false,
-	// 			contentBase:	'./public/',
+	// devServer: {
+	// 			contentBase:	'./',
 	// 			port:	3001
-	// 	},
+	// },
 	watch: true,
 	module: {
 		loaders: [
