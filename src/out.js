@@ -24913,14 +24913,14 @@ var App = function (_Component) {
 	_createClass(App, [{
 		key: 'findFirstTimer',
 		value: function findFirstTimer(items) {
+			var startIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
 			var len = items.length;
 
-			for (var i = 0; i < len; i++) {
-				// console.log(items[i]);
+			for (var i = startIndex; i < len; i++) {
 				if (items[i].type === "timer") {
 					console.log("found first timer", items[i]);
 					return items[i];
-					console.error("pętla działa po returnie");
 				} else if (items[i].content.length > 0) {
 					return this.findFirstTimer(items[i].content);
 				} else {
@@ -24929,14 +24929,14 @@ var App = function (_Component) {
 			}
 		}
 	}, {
-		key: 'switchActive',
-		value: function switchActive(timer) {
-
+		key: 'switchActiveLoop',
+		value: function switchActiveLoop(timer) {
 			function updateLoop(loop) {
 				// return updated loop and new active timer
 
+				// TODO: set stop condition if end of main loop
+
 				if (loop.reps > 0) {
-					// reduce number of reps
 					loop.reps = loop.reps -= 1;
 					// reset content state (reset timers and inner loops)
 					// TODO: reset loop content to initial
@@ -24954,7 +24954,13 @@ var App = function (_Component) {
 					console.log("newActiveTimer", newActiveTimer);
 					return [newActiveTimer, loop];
 				} else {
-					return updateLoop(loop.parentLoop);
+					if (loop.parentLoop === "mainLoop") {
+						// stop timer if end of 'main' loop
+						console.log("Congratulations! You did it!");
+						this.handleStop();
+					} else {
+						return updateLoop(loop.parentLoop);
+					}
 				}
 			}
 
@@ -24977,14 +24983,17 @@ var App = function (_Component) {
 			var activeTimer = this.state.activeTimer;
 
 			function updateTimes(e, itemToUpdate) {
-				// look through times array and switch desired loop or timer with updated
+				// function returns a new times object with changed only desired loop or timer
 				if (e.id === itemToUpdate.id) {
 					if (itemToUpdate.type === "timer") {
+						// if timer - countdown and return
 						return this.updateTime(itemToUpdate);
 					} else {
+						// if loop - return passed loop, as it has been updated before passing as argument
 						return itemToUpdate;
 					}
 				} else if (e.type === "loop") {
+					// if element id does not match desired item.id, return not changed element
 					if (e.content.length > 0) {
 						return e.content.map(function (innerE) {
 							return updateTimes(e.content, itemToUpdate);
@@ -24998,19 +25007,44 @@ var App = function (_Component) {
 			}
 
 			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
-				console.log("switchActive");
+				var parentLoop = activeTimer.parentLoop;
+				var timerIndex = parentLoop.content.indexOf(activeTimer);
+				console.log("parentLoop", parentLoop);
+				console.log("timerIndex", timerIndex);
 
-				var _switchActive = this.switchActive(activeTimer);
+				var newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
+				console.log("activeTimer", activeTimer);
 
-				var _switchActive2 = _slicedToArray(_switchActive, 2);
+				if (newActiveTimer == null) {
+					console.log("switchActiveLoop");
 
-				activeTimer = _switchActive2[0];
-				loopToUpdate = _switchActive2[1];
+					var _switchActiveLoop = this.switchActiveLoop(activeTimer);
+
+					var _switchActiveLoop2 = _slicedToArray(_switchActiveLoop, 2);
+
+					activeTimer = _switchActiveLoop2[0];
+					loopToUpdate = _switchActiveLoop2[1];
 
 
-				times.map(function (e) {
-					return updateTimes(e, loopToUpdate);
-				});
+					times.map(function (e) {
+						return updateTimes(e, loopToUpdate);
+					});
+				} else {
+					activeTimer = newActiveTimer;
+
+					times.map(function (e) {
+						console.log("switchActiveTimer");
+						return updateTimes(e, activeTimer);
+					});
+				}
+
+				// } else {
+				// 	console.log("switchActiveLoop");
+				// 	[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
+				//
+				// 	times.map(e => {
+				// 		return updateTimes(e, loopToUpdate)
+				// 	});
 			} else {
 				console.log("countdown");
 				activeTimer = this.updateTime(activeTimer);

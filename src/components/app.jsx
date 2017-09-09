@@ -26,15 +26,13 @@ class App extends Component {
 	}
 
 
-	findFirstTimer(items) {
+	findFirstTimer(items, startIndex = 0) {
 		const len = items.length;
 
-		for (let i=0; i<len; i++) {
-			// console.log(items[i]);
+		for (let i=startIndex; i<len; i++) {
 			if (items[i].type === "timer") {
 				console.log("found first timer", items[i]);
 				return items[i];
-				console.error("pętla działa po returnie");
 			} else if (items[i].content.length > 0){
 				return this.findFirstTimer(items[i].content);
 			} else {
@@ -43,13 +41,13 @@ class App extends Component {
 		}
 	}
 
-	switchActive(timer) {
-
+	switchActiveLoop(timer) {
 		function updateLoop(loop) {
 			// return updated loop and new active timer
 
+			// TODO: set stop condition if end of main loop
+
 			if (loop.reps > 0) {
-				// reduce number of reps
 				loop.reps = loop.reps -= 1;
 				// reset content state (reset timers and inner loops)
 				// TODO: reset loop content to initial
@@ -66,7 +64,13 @@ class App extends Component {
 				return [newActiveTimer, loop];
 
 			} else {
-				return updateLoop(loop.parentLoop);
+				if (loop.parentLoop === "mainLoop") {
+					// stop timer if end of 'main' loop
+					console.log("Congratulations! You did it!");
+					this.handleStop();
+				} else {
+					return updateLoop(loop.parentLoop);
+				}
 			}
 		}
 
@@ -87,14 +91,17 @@ class App extends Component {
 		let activeTimer = this.state.activeTimer;
 
 		function updateTimes(e, itemToUpdate) {
-			// look through times array and switch desired loop or timer with updated
+			// function returns a new times object with changed only desired loop or timer
 			if (e.id === itemToUpdate.id) {
 				if (itemToUpdate.type === "timer") {
+					// if timer - countdown and return
 					return this.updateTime(itemToUpdate);
 				} else {
+					// if loop - return passed loop, as it has been updated before passing as argument
 					return itemToUpdate;
 				}
 			} else if (e.type === "loop") {
+				// if element id does not match desired item.id, return not changed element
 				if (e.content.length > 0) {
 					return e.content.map(innerE => {
 						return updateTimes(e.content, itemToUpdate);
@@ -108,12 +115,38 @@ class App extends Component {
 		}
 
 		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
-			console.log("switchActive");
-			[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
+			const parentLoop = activeTimer.parentLoop;
+			const timerIndex = parentLoop.content.indexOf(activeTimer);
+			console.log("parentLoop", parentLoop);
+			console.log("timerIndex", timerIndex);
 
-			times.map(e => {
-				return updateTimes(e, loopToUpdate)
-			});
+			let newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
+			console.log("activeTimer", activeTimer);
+
+			if (newActiveTimer == null) {
+				console.log("switchActiveLoop");
+				[activeTimer, loopToUpdate] = this.switchActiveLoop(activeTimer);
+
+				times.map(e => {
+					return updateTimes(e, loopToUpdate)
+				});
+			} else {
+				activeTimer = newActiveTimer;
+
+				times.map(e => {
+					console.log("switchActiveTimer");
+					return updateTimes(e, activeTimer);
+				});
+			}
+
+			// } else {
+			// 	console.log("switchActiveLoop");
+			// 	[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
+			//
+			// 	times.map(e => {
+			// 		return updateTimes(e, loopToUpdate)
+			// 	});
+
 		} else {
 			console.log("countdown");
 			activeTimer = this.updateTime(activeTimer);
