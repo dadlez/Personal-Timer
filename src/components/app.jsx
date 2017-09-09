@@ -86,28 +86,44 @@ class App extends Component {
 	updateState(times) {
 		let activeTimer = this.state.activeTimer;
 
+		function updateTimes(e, itemToUpdate) {
+			// look through times array and switch desired loop or timer with updated
+			if (e.id === itemToUpdate.id) {
+				if (itemToUpdate.type === "timer") {
+					return this.updateTime(itemToUpdate);
+				} else {
+					return itemToUpdate;
+				}
+			} else if (e.type === "loop") {
+				if (e.content.length > 0) {
+					return e.content.map(innerE => {
+						return updateTimes(e.content, itemToUpdate);
+					});
+				} else {
+					return e;
+				}
+			} else {
+				return e;
+			}
+		}
+
 		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
 			console.log("switchActive");
 			[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
 
 			times.map(e => {
-				return e; // TODO: return here update loopToUpdate
+				return updateTimes(e, loopToUpdate)
 			});
 		} else {
 			console.log("countdown");
+			activeTimer = this.updateTime(activeTimer);
 			times.map(e => {
-				// TODO: make function for updating times
-
-				if (e.id === activeTimer.id) {
-					return this.updateTime(activeTimer);
-				} else if (e.type === "loop"){
-					return e.content.map(innerE => {});
-				}
+				return updateTimes(e, activeTimer);
 			});
 		}
 
 		this.setState({
-			times: times,
+			times,
 			activeTimer
 		});
 	}
@@ -149,8 +165,6 @@ class App extends Component {
 			// 	}
 			// }
 		}
-
-		console.log(activeTimer);
 
 		this.setState({
 			run: true,

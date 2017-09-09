@@ -24883,8 +24883,6 @@ var App = function (_Component) {
 				// }
 			}
 
-			console.log(activeTimer);
-
 			_this.setState({
 				run: true,
 				activeTimer: activeTimer
@@ -24976,9 +24974,28 @@ var App = function (_Component) {
 	}, {
 		key: 'updateState',
 		value: function updateState(times) {
-			var _this2 = this;
-
 			var activeTimer = this.state.activeTimer;
+
+			function updateTimes(e, itemToUpdate) {
+				// look through times array and switch desired loop or timer with updated
+				if (e.id === itemToUpdate.id) {
+					if (itemToUpdate.type === "timer") {
+						return this.updateTime(itemToUpdate);
+					} else {
+						return itemToUpdate;
+					}
+				} else if (e.type === "loop") {
+					if (e.content.length > 0) {
+						return e.content.map(function (innerE) {
+							return updateTimes(e.content, itemToUpdate);
+						});
+					} else {
+						return e;
+					}
+				} else {
+					return e;
+				}
+			}
 
 			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
 				console.log("switchActive");
@@ -24992,18 +25009,13 @@ var App = function (_Component) {
 
 
 				times.map(function (e) {
-					return e; // TODO: return here update loopToUpdate
+					return updateTimes(e, loopToUpdate);
 				});
 			} else {
 				console.log("countdown");
+				activeTimer = this.updateTime(activeTimer);
 				times.map(function (e) {
-					// TODO: make function for updating times
-
-					if (e.id === activeTimer.id) {
-						return _this2.updateTime(activeTimer);
-					} else if (e.type === "loop") {
-						return e.content.map(function (innerE) {});
-					}
+					return updateTimes(e, activeTimer);
 				});
 			}
 
@@ -25015,10 +25027,10 @@ var App = function (_Component) {
 	}, {
 		key: 'startInterval',
 		value: function startInterval() {
-			var _this3 = this;
+			var _this2 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this3.updateState(_this3.state.times);
+				_this2.updateState(_this2.state.times);
 			}, 1000);
 		}
 	}, {
