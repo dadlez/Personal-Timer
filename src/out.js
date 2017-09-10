@@ -24775,7 +24775,7 @@ var AddTimer = function (_Component) {
 						_react2.default.createElement(_lib.FormControl, {
 							type: 'number',
 							name: 'seconds',
-							defaultValue: 10,
+							defaultValue: 3,
 							bsClass: 'timer-seconds'
 						})
 					),
@@ -24891,9 +24891,7 @@ var App = function (_Component) {
 
 		_this.handleStop = function (event) {
 			event.preventDefault();
-			_this.setState({
-				run: false
-			});
+			_this.setState({ run: false });
 		};
 
 		_this.changeView = function (view) {
@@ -24915,6 +24913,8 @@ var App = function (_Component) {
 		value: function findFirstTimer(items) {
 			var startIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
+			// TODO: set seperate iteration for main loop
+
 			var len = items.length;
 
 			for (var i = startIndex; i < len; i++) {
@@ -24934,15 +24934,14 @@ var App = function (_Component) {
 			function updateLoop(loop) {
 				// return updated loop and new active timer
 
-				// TODO: set stop condition if end of main loop
+				// TODO: set stop countdown condition if end of main loop
 
 				if (loop.reps > 0) {
+					// case 2: reduce loop reps, reset content to initial, set first timer in loop as active
 					loop.reps = loop.reps -= 1;
-					// reset content state (reset timers and inner loops)
 					// TODO: reset loop content to initial
 					// loop.content = loop.initial;
 
-					// return first timer in loop as active
 					var newActiveTimer = this.findFirstTimer(loop.content);
 
 					if (newActiveTimer == null) {
@@ -24954,44 +24953,34 @@ var App = function (_Component) {
 					console.log("newActiveTimer", newActiveTimer);
 					return [newActiveTimer, loop];
 				} else {
-					if (loop.parentLoop === "mainLoop") {
-						// stop timer if end of 'main' loop
-						console.log("Congratulations! You did it!");
-						this.handleStop();
-					} else {
-						return updateLoop(loop.parentLoop);
-					}
+					// case 3: reduce parent loop reps
+					return updateLoop(loop.parentLoop);
 				}
 			}
 
 			return updateLoop(timer.parentLoop);
 		}
 	}, {
-		key: 'updateTime',
-		value: function updateTime(timer) {
-			if (timer.seconds < 1) {
-				timer.minutes -= 1;
-				timer.seconds = 59;
-			} else {
-				timer.seconds -= 1;
-			}
-			return timer;
-		}
-	}, {
 		key: 'updateState',
-		value: function updateState(times) {
+		value: function updateState() {
+			// main function for updating state in timers and loops, switching timers and updating this.state
+			var times = this.state.times;
 			var activeTimer = this.state.activeTimer;
 
+			function updateTime(timer) {
+				if (timer.seconds < 1) {
+					timer.minutes -= 1;
+					timer.seconds = 59;
+				} else {
+					timer.seconds -= 1;
+				}
+				return timer;
+			}
+
 			function updateTimes(e, itemToUpdate) {
-				// function returns a new times object with changed only desired loop or timer
+				// function returns a new times object with changed only desired loop or timer to passed element
 				if (e.id === itemToUpdate.id) {
-					if (itemToUpdate.type === "timer") {
-						// if timer - countdown and return
-						return this.updateTime(itemToUpdate);
-					} else {
-						// if loop - return passed loop, as it has been updated before passing as argument
-						return itemToUpdate;
-					}
+					return itemToUpdate;
 				} else if (e.type === "loop") {
 					// if element id does not match desired item.id, return not changed element
 					if (e.content.length > 0) {
@@ -25007,15 +24996,35 @@ var App = function (_Component) {
 			}
 
 			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
+				// case 1: end of timer
 				var parentLoop = activeTimer.parentLoop;
-				var timerIndex = parentLoop.content.indexOf(activeTimer);
+				var timerIndex = 0;
+				var newActiveTimer = {};
+
+				if (parentLoop === "mainLoop") {
+					// set variables if timer is not inside loop
+					timerIndex = times.indexOf(activeTimer);
+
+					if (timerIndex == times.length - 1) {
+						// end of set - stop interval
+						console.log("END");
+						this.setState({ run: false });
+						return;
+					}
+
+					newActiveTimer = this.findFirstTimer(times, timerIndex + 1);
+				} else {
+					// set variables if timer is inside inner loop
+					timerIndex = parentLoop.content.indexOf(activeTimer);
+					newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
+				}
+
 				console.log("parentLoop", parentLoop);
 				console.log("timerIndex", timerIndex);
-
-				var newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
-				console.log("activeTimer", activeTimer);
+				console.log("activeTimer", newActiveTimer);
 
 				if (newActiveTimer == null) {
+					// case 1a: no next timer inside this loop
 					console.log("switchActiveLoop");
 
 					var _switchActiveLoop = this.switchActiveLoop(activeTimer);
@@ -25030,24 +25039,26 @@ var App = function (_Component) {
 						return updateTimes(e, loopToUpdate);
 					});
 				} else {
+					// case 1b: switch active timer to the next one inside this loop
+					console.log("switchActiveTimer");
+
+					// if (timerIndex == times.length - 1) {
+					// 	// end of set - stop interval
+					// 	console.log("END");
+					// 	this.setState({ run: false });
+					// 	return;
+					// }
+
 					activeTimer = newActiveTimer;
 
 					times.map(function (e) {
-						console.log("switchActiveTimer");
 						return updateTimes(e, activeTimer);
 					});
 				}
-
-				// } else {
-				// 	console.log("switchActiveLoop");
-				// 	[activeTimer, loopToUpdate] = this.switchActive(activeTimer);
-				//
-				// 	times.map(e => {
-				// 		return updateTimes(e, loopToUpdate)
-				// 	});
 			} else {
+				// case 2: only countdown timer, no switching
 				console.log("countdown");
-				activeTimer = this.updateTime(activeTimer);
+				activeTimer = updateTime(activeTimer);
 				times.map(function (e) {
 					return updateTimes(e, activeTimer);
 				});
@@ -25064,7 +25075,7 @@ var App = function (_Component) {
 			var _this2 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this2.updateState(_this2.state.times);
+				_this2.updateState();
 			}, 1000);
 		}
 	}, {

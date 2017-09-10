@@ -70,7 +70,7 @@ class AddTimer extends Component {
 						<FormControl
 							type="number"
 							name="seconds"
-							defaultValue={10}
+							defaultValue={3}
 							bsClass="timer-seconds"
 						/>
 					</InputGroup>
