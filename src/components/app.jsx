@@ -27,8 +27,6 @@ class App extends Component {
 
 
 	findFirstTimer(items, startIndex = 0) {
-		// TODO: set seperate iteration for main loop
-
 		const len = items.length;
 
 		for (let i=startIndex; i<len; i++) {
@@ -38,49 +36,60 @@ class App extends Component {
 			} else if (items[i].content.length > 0){
 				return this.findFirstTimer(items[i].content);
 			} else {
+				console.log("timer not found here");
 				return null;
 			}
 		}
 	}
 
 	switchActiveLoop(timer) {
-		function updateLoop(loop) {
-			// return updated loop and new active timer
+		// returns new active timer and updated loop or null if no further timer found
+		// TODO: switching loops takes 1 updateState run == 1sec. Modify it for an asynchronus loop reps countdown
+		let activeTimer = {};
 
-			// TODO: set stop countdown condition if end of main loop
+		let updateLoop = (loop) => {
+			// return updated loop and new active timer
 
 			if (loop.reps > 0) {
 				// case 2: reduce loop reps, reset content to initial, set first timer in loop as active
-				loop.reps = loop.reps -= 1
+				loop.reps -= 1;
+				console.log("reset loop content");
 				// TODO: reset loop content to initial
 				// loop.content = loop.initial;
 
-				const newActiveTimer = this.findFirstTimer(loop.content);
+				activeTimer = this.findFirstTimer(loop.content);
 
-				if (newActiveTimer == null) { console.error("you did not specify any timer!"); }
+				if (activeTimer == null) { console.error("you did not specify any timer!"); }
 
-				console.log("loop to update", loop);
-				console.log("active loop reps", loop.reps);
-				console.log("newActiveTimer", newActiveTimer);
-				return [newActiveTimer, loop];
-
+				return loop;
 			} else {
+				if (loop.parentLoop === "mainLoop") {
+					// case 4: end of last timer - stop countdown
+					return;
+				}
 				// case 3: reduce parent loop reps
 				return updateLoop(loop.parentLoop);
 			}
 		}
 
-		return updateLoop(timer.parentLoop);
+		const loopToUpdate = updateLoop(timer.parentLoop);
+		return [activeTimer, loopToUpdate];
+		// return [activeTimer, updateLoop(timer.parentLoop)]; // why not working?
+
 	}
 
 
 	updateState() {
+		console.log("setting state");
 		// main function for updating state in timers and loops, switching timers and updating this.state
 		let times = this.state.times;
 		let activeTimer = this.state.activeTimer;
 
+		console.log("activeTimer", activeTimer);
+
 		function updateTime(timer) {
 			if (timer.seconds < 1) {
+				if (timer.minutes < 1) { return timer; } // in case there is switching loops
 				timer.minutes -= 1;
 				timer.seconds = 59;
 			} else {
@@ -107,20 +116,19 @@ class App extends Component {
 			}
 		}
 
-		if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
+		if (activeTimer.minutes < 1 && activeTimer.seconds < 1) {
 			// case 1: end of timer
 			const parentLoop = activeTimer.parentLoop;
 			let timerIndex = 0;
 			let newActiveTimer = {};
 
 			if (parentLoop === "mainLoop") {
-				// set variables if timer is not inside loop
+				// set variables if timer is not inside loop or stop if it's last timer
 				timerIndex = times.indexOf(activeTimer);
 
 				if (timerIndex == times.length - 1) {
 					// end of set - stop interval
-					console.log("END");
-					this.setState({ run: false });
+					this.endTimer();
 					return;
 				}
 
@@ -131,31 +139,29 @@ class App extends Component {
 				newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
 			}
 
-			console.log("parentLoop", parentLoop);
-			console.log("timerIndex", timerIndex);
-			console.log("activeTimer", newActiveTimer);
-
 			if (newActiveTimer == null) {
 				// case 1a: no next timer inside this loop
 				console.log("switchActiveLoop");
+				let loopToUpdate = {};
+
+				//find and set next timer as active or stop countdown if no more timers in times
 				[activeTimer, loopToUpdate] = this.switchActiveLoop(activeTimer);
 
+				if (loopToUpdate == null) {
+					this.endTimer();
+					return;
+				}
+
+				activeTimer = updateTime(activeTimer);
 				times.map(e => {
 					return updateTimes(e, loopToUpdate)
 				});
 			} else {
 				// case 1b: switch active timer to the next one inside this loop
 				console.log("switchActiveTimer");
-
-				// if (timerIndex == times.length - 1) {
-				// 	// end of set - stop interval
-				// 	console.log("END");
-				// 	this.setState({ run: false });
-				// 	return;
-				// }
-
 				activeTimer = newActiveTimer;
 
+				activeTimer = updateTime(activeTimer);
 				times.map(e => {
 					return updateTimes(e, activeTimer);
 				});
@@ -200,17 +206,6 @@ class App extends Component {
 			activeTimer = this.findFirstTimer(times);
 
 			if (activeTimer == null) { console.error("no timer set!"); }
-			// function iterateLoop(itemsList) {
-			// 	for (let j = 0; j < itemsList.length; j++) {
-			// 		if (itemsList[j].type === "timer") {
-			// 			activeTimer = itemsList[j];
-			// 			i = len;
-			// 			j = itemsList.length;
-			// 		} else if (itemsList[j].content.length > 0) {
-			// 			iterateLoop(itemsList[j].content);
-			// 		}
-			// 	}
-			// }
 		}
 
 		this.setState({
@@ -222,6 +217,13 @@ class App extends Component {
 	handleStop = (event) => {
 		event.preventDefault();
 		this.setState({ run: false });
+		clearInterval(this.timerInterval);
+	}
+
+	endTimer = () => {
+		console.log("THE END");
+		this.setState({ run: false })
+		clearInterval(this.timerInterval);
 	}
 
 	changeView = (view) => {

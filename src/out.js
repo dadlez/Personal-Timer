@@ -24870,17 +24870,6 @@ var App = function (_Component) {
 				if (activeTimer == null) {
 					console.error("no timer set!");
 				}
-				// function iterateLoop(itemsList) {
-				// 	for (let j = 0; j < itemsList.length; j++) {
-				// 		if (itemsList[j].type === "timer") {
-				// 			activeTimer = itemsList[j];
-				// 			i = len;
-				// 			j = itemsList.length;
-				// 		} else if (itemsList[j].content.length > 0) {
-				// 			iterateLoop(itemsList[j].content);
-				// 		}
-				// 	}
-				// }
 			}
 
 			_this.setState({
@@ -24892,6 +24881,13 @@ var App = function (_Component) {
 		_this.handleStop = function (event) {
 			event.preventDefault();
 			_this.setState({ run: false });
+			clearInterval(_this.timerInterval);
+		};
+
+		_this.endTimer = function () {
+			console.log("THE END");
+			_this.setState({ run: false });
+			clearInterval(_this.timerInterval);
 		};
 
 		_this.changeView = function (view) {
@@ -24913,8 +24909,6 @@ var App = function (_Component) {
 		value: function findFirstTimer(items) {
 			var startIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-			// TODO: set seperate iteration for main loop
-
 			var len = items.length;
 
 			for (var i = startIndex; i < len; i++) {
@@ -24924,6 +24918,7 @@ var App = function (_Component) {
 				} else if (items[i].content.length > 0) {
 					return this.findFirstTimer(items[i].content);
 				} else {
+					console.log("timer not found here");
 					return null;
 				}
 			}
@@ -24931,44 +24926,58 @@ var App = function (_Component) {
 	}, {
 		key: 'switchActiveLoop',
 		value: function switchActiveLoop(timer) {
-			function updateLoop(loop) {
-				// return updated loop and new active timer
+			var _this2 = this;
 
-				// TODO: set stop countdown condition if end of main loop
+			// returns new active timer and updated loop or null if no further timer found
+			// TODO: switching loops takes 1 updateState run == 1sec. Modify it for an asynchronus loop reps countdown
+			var activeTimer = {};
+
+			var updateLoop = function updateLoop(loop) {
+				// return updated loop and new active timer
 
 				if (loop.reps > 0) {
 					// case 2: reduce loop reps, reset content to initial, set first timer in loop as active
-					loop.reps = loop.reps -= 1;
+					loop.reps -= 1;
+					console.log("reset loop content");
 					// TODO: reset loop content to initial
 					// loop.content = loop.initial;
 
-					var newActiveTimer = this.findFirstTimer(loop.content);
+					activeTimer = _this2.findFirstTimer(loop.content);
 
-					if (newActiveTimer == null) {
+					if (activeTimer == null) {
 						console.error("you did not specify any timer!");
 					}
 
-					console.log("loop to update", loop);
-					console.log("active loop reps", loop.reps);
-					console.log("newActiveTimer", newActiveTimer);
-					return [newActiveTimer, loop];
+					return loop;
 				} else {
+					if (loop.parentLoop === "mainLoop") {
+						// case 4: end of last timer - stop countdown
+						return;
+					}
 					// case 3: reduce parent loop reps
 					return updateLoop(loop.parentLoop);
 				}
-			}
+			};
 
-			return updateLoop(timer.parentLoop);
+			var loopToUpdate = updateLoop(timer.parentLoop);
+			return [activeTimer, loopToUpdate];
+			// return [activeTimer, updateLoop(timer.parentLoop)]; // why not working?
 		}
 	}, {
 		key: 'updateState',
 		value: function updateState() {
+			console.log("setting state");
 			// main function for updating state in timers and loops, switching timers and updating this.state
 			var times = this.state.times;
 			var activeTimer = this.state.activeTimer;
 
+			console.log("activeTimer", activeTimer);
+
 			function updateTime(timer) {
 				if (timer.seconds < 1) {
+					if (timer.minutes < 1) {
+						return timer;
+					} // in case there is switching loops
 					timer.minutes -= 1;
 					timer.seconds = 59;
 				} else {
@@ -24995,20 +25004,19 @@ var App = function (_Component) {
 				}
 			}
 
-			if (activeTimer.minutes === 0 && activeTimer.seconds === 0) {
+			if (activeTimer.minutes < 1 && activeTimer.seconds < 1) {
 				// case 1: end of timer
 				var parentLoop = activeTimer.parentLoop;
 				var timerIndex = 0;
 				var newActiveTimer = {};
 
 				if (parentLoop === "mainLoop") {
-					// set variables if timer is not inside loop
+					// set variables if timer is not inside loop or stop if it's last timer
 					timerIndex = times.indexOf(activeTimer);
 
 					if (timerIndex == times.length - 1) {
 						// end of set - stop interval
-						console.log("END");
-						this.setState({ run: false });
+						this.endTimer();
 						return;
 					}
 
@@ -25019,13 +25027,12 @@ var App = function (_Component) {
 					newActiveTimer = this.findFirstTimer(parentLoop.content, timerIndex + 1);
 				}
 
-				console.log("parentLoop", parentLoop);
-				console.log("timerIndex", timerIndex);
-				console.log("activeTimer", newActiveTimer);
-
 				if (newActiveTimer == null) {
 					// case 1a: no next timer inside this loop
 					console.log("switchActiveLoop");
+					var loopToUpdate = {};
+
+					//find and set next timer as active or stop countdown if no more timers in times
 
 					var _switchActiveLoop = this.switchActiveLoop(activeTimer);
 
@@ -25035,22 +25042,21 @@ var App = function (_Component) {
 					loopToUpdate = _switchActiveLoop2[1];
 
 
+					if (loopToUpdate == null) {
+						this.endTimer();
+						return;
+					}
+
+					activeTimer = updateTime(activeTimer);
 					times.map(function (e) {
 						return updateTimes(e, loopToUpdate);
 					});
 				} else {
 					// case 1b: switch active timer to the next one inside this loop
 					console.log("switchActiveTimer");
-
-					// if (timerIndex == times.length - 1) {
-					// 	// end of set - stop interval
-					// 	console.log("END");
-					// 	this.setState({ run: false });
-					// 	return;
-					// }
-
 					activeTimer = newActiveTimer;
 
+					activeTimer = updateTime(activeTimer);
 					times.map(function (e) {
 						return updateTimes(e, activeTimer);
 					});
@@ -25072,10 +25078,10 @@ var App = function (_Component) {
 	}, {
 		key: 'startInterval',
 		value: function startInterval() {
-			var _this2 = this;
+			var _this3 = this;
 
 			this.timerInterval = setInterval(function () {
-				_this2.updateState();
+				_this3.updateState();
 			}, 1000);
 		}
 	}, {
